@@ -16,7 +16,7 @@
 <style>
   html, body { touch-action: none; margin: 0; height: 100%; background: #101820; color: #e8eef2; font-family: system-ui, sans-serif; overflow: hidden; }
   #app { position: relative; display: flex; flex-direction: column; height: 100%; align-items: center; }
-  #score { margin-top: 6px; border-collapse: collapse; font-size: 14px; background: #1b2733; border-radius: 6px; overflow: hidden; }
+  #score { margin: 6px 0 0; border-collapse: collapse; font-size: 14px; background: #1b2733; border-radius: 6px; overflow: hidden; }
   #score th, #score td { padding: 3px 10px; text-align: center; min-width: 34px; }
   #score th { font-weight: 600; color: #9fb3c2; font-size: 12px; }
   #score td.name { text-align: left; min-width: 70px; }
@@ -29,24 +29,51 @@
   #court { position: relative; line-height: 0; }
   /* The end-of-set box sits on the court, below the "Set" message (drawn at 60% of the court height), so they never overlap. */
   #over { position: absolute; left: 50%; top: 64%; transform: translateX(-50%); background: rgba(16, 24, 32, 0.94); border: 2px solid #f2e94e;
-    border-radius: 12px; padding: 14px 22px; text-align: center; z-index: 5; width: max-content; max-width: 92%; box-sizing: border-box; line-height: 1.25; }
+    border-radius: 12px; padding: 10px 22px; text-align: center; z-index: 5; width: max-content; max-width: 92%; box-sizing: border-box; line-height: 1.25; }
   #over[hidden] { display: none; }
   #over-title { font-size: 24px; font-weight: 700; }
-  #over-score { margin: 8px 0 14px; color: #9fb3c2; }
-  @media (max-height: 520px) { #over { padding: 6px 12px; } #over-title { font-size: 15px; } #over-score { margin: 3px 0 6px; font-size: 12px; } #again { font-size: 14px; padding: 4px 12px; } }
-  @media (max-height: 420px) { #over-score { display: none; } #over { padding: 4px 10px; } #over-title { margin-bottom: 4px; } #again { font-size: 13px; padding: 3px 10px; } }
+  #over-score { margin: 4px 0 8px; color: #9fb3c2; }
+  @media (max-height: 520px) { #over { padding: 3px 12px; } #over-title { font-size: 15px; } #over-score { margin: 3px 0 6px; font-size: 12px; } #again { font-size: 14px; padding: 3px 12px; } }
+  @media (max-height: 420px) { #over-score { display: none; } #over { padding: 4px 10px; max-width: none; } #over-title { margin-bottom: 4px; } #again { font-size: 13px; padding: 3px 10px; } }
+  /* Windows with room beside the court (the page decides, see layout()): the scoreboard moves to the left of the court, so the court gets the full height. */
+  body.side #score { position: absolute; left: 14px; top: 12px; margin: 0; font-size: 15px; }
+  /* The Shot button (lob) is only for touch screens; it appears under the court. */
+  #shotbar { display: none; width: 100%; justify-content: center; padding: 2px 0 4px; }
+  @media (pointer: coarse) { #shotbar { display: flex; } }
+  body.touch #shotbar { display: flex; }
+  #shot { font-size: 18px; font-weight: 700; min-width: 140px; height: 48px; border-radius: 24px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #shot.down { background: #f2e94e; color: #101820; }
+  #score td.level { text-align: center; color: #f2e94e; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 10px 0; }
+  /* The level choice sits in the middle of the window (on a small landscape phone the court is narrower than the box). */
+  #choose { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(16, 24, 32, 0.95); border: 2px solid #f2e94e;
+    border-radius: 12px; padding: 14px 16px; text-align: center; z-index: 6; width: max-content; max-width: 96vw; box-sizing: border-box; line-height: 1.25; }
+  #choose[hidden] { display: none; }
+  #choose-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  #levels { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .lv { font-size: 16px; font-weight: 700; min-width: 84px; padding: 10px 8px; border-radius: 8px; border: 2px solid #3b82f6; background: #26384a; color: #e8eef2; cursor: pointer; touch-action: none; }
+  .lv.pick { background: #3b82f6; color: #fff; border-color: #f2e94e; }
+  #choose-hint { margin-top: 10px; font-size: 12px; color: #9fb3c2; }
+  @media (max-height: 520px) { #choose { padding: 6px 10px; } #choose-title { font-size: 15px; margin-bottom: 5px; } .lv { font-size: 13px; padding: 5px 6px; min-width: 70px; } #choose-hint { display: none; } }
+  #change { font-size: 18px; padding: 6px 14px; line-height: 1.2; border-radius: 8px; border: 2px solid #3b82f6; background: transparent; color: #e8eef2; cursor: pointer; white-space: nowrap; margin-left: 6px; }
   #again { font-size: 18px; padding: 8px 20px; border-radius: 8px; border: 0; background: #3b82f6; color: #fff; cursor: pointer; white-space: nowrap; }
+  /* after the base rules above, so that they win on short screens */
+  @media (max-height: 520px) { #again, #change { font-size: 14px; padding: 3px 12px; } }
+  @media (max-width: 400px) { #again, #change { font-size: 15px; padding: 6px 10px; } #change { margin-left: 4px; } #over { padding: 8px 12px; } }
+  @media (max-height: 420px) { #again, #change { font-size: 13px; padding: 2px 10px; } }
 </style>
 </head>
 <body>
 <div id="app">
   <table id="score" aria-label="Scoreboard">
+    <tr><td class="level" colspan="3" id="level"></td></tr>
     <tr><th></th><th>Games</th><th id="points-head">Points</th></tr>
     <tr><td class="name"><span class="serve" id="serve-you"></span>You</td><td id="g-you">0</td><td class="pts" id="p-you">0</td></tr>
     <tr><td class="name"><span class="serve" id="serve-cpu"></span>Computer</td><td id="g-cpu">0</td><td class="pts" id="p-cpu">0</td></tr>
   </table>
   <div id="stage"><div id="court"><canvas id="c"></canvas>
-    <div id="over" hidden><div id="over-title"></div><div id="over-score"></div><button id="again" type="button">New match</button></div></div></div>
+    <div id="over" hidden><div id="over-title"></div><div id="over-score"></div><div id="over-buttons"><button id="again" type="button">New match</button><button id="change" type="button">Change level</button></div></div>
+    <div id="choose"><div id="choose-title">Choose a level</div><div id="levels"><button class="lv" type="button" data-level="beginner">Beginner</button><button class="lv" type="button" data-level="advanced">Advanced</button><button class="lv" type="button" data-level="pro">Pro</button></div><div id="choose-hint">Click or tap one, or press 1, 2, 3 (or the arrows) and Space</div></div></div></div>
+  <div id="shotbar"><button id="shot" type="button">Shot</button></div>
   <div id="help"></div>
 </div>
 <script>
@@ -62,7 +89,12 @@ const require = (name) => REGISTRY[name];
 const COURT_W = 360;
 const COURT_L = 560;
 const NET_Y = 280;
-const RACKET_SPEED = 900;     // units per second a racket can travel
+const RACKET_SPEED = 900;     // units per second a racket can travel (top speed)
+const EASE_GAIN = 12;         // a racket runs at EASE_GAIN x its distance to the target per second (up to RACKET_SPEED): a small twitch is a small, smooth move
+const RACKET_HALF_W = 28;     // drawn racket head half-width; where the ball meets it (-1 left edge .. 1 right edge) sets the direction
+const COMPUTER_NET_SPEED = 90; // the computer settles for a ball: in reach of it, it does not move toward the net faster than this unless it lunges (below the power threshold)
+const COMPUTER_SETTLE_GAIN = 12; // farther from the ball it may run toward the net this much faster per unit of distance (it slows down as it comes close)
+const LUNGE_DISTANCE = 60;    // a lunging computer racket aims this far past the ball toward the net, so it runs through the ball
 const RACKET_HALF_H = 24;      // drawn racket head half-height incl. outline; the page uses it too
 const NET_GAP = RACKET_HALF_H + 4; // racket centre stays this far from the net, so the head and the net band never overlap
 const BEHIND_BASELINE = 30;   // how far behind the baseline a racket may stand
@@ -82,8 +114,14 @@ const FLAT_SPEED = 520;       // nominal forward speed of a flat shot, units/s
 const MIN_SHOT_VZ = 60;       // a shot always leaves the racket at least this fast upward
 const RETURN_DEPTH = 100;     // a flat shot lands this far in front of the opponent baseline
 const SHOT_SIDE_INSET = 24;   // a shot aims at least this far inside a sideline
+const LOB_SPEED = 300;        // forward speed of a lob, units/s (a flat shot flies at FLAT_SPEED)
+const LOB_DEPTH = 40;         // a lob lands this far in front of the opponent baseline
+const LOB_MIN_TIME = 1.2;     // a lob stays in the air at least this long (s), so even one hit at the net climbs above a volley at the net
 const HIT_REACH = 34;         // the racket reaches a ball this close (court units, flat on the ground)
 const HIT_HEIGHT = 45;        // ...and no higher than this
+const VOLLEY_HEIGHT = 100;    // a ball still in the air (a volley) is reached this high: a normal return crosses the net up to about 88 high
+const SMASH_DROP = 15;        // a shot from above the ground reach (a high volley) may leave the racket downward: the floor of MIN_SHOT_VZ drops by this much per unit of height above HIT_HEIGHT
+const NET_STAND_DIST = 70;    // the computer at the net stands this far from the net
 const FEED_HEIGHT = 30;       // height at which the opening shot of a rally is hit
 const MAX_DT = 0.05;          // longest time step used; longer ones are cut to this
 const SUBSTEP = 1 / 240;      // inner step, so a fast ball cannot skip the net or the ground
@@ -130,8 +168,8 @@ function moveRacketToward(racket, target, dt, side) {
   const dx = goal.x - here.x;
   const dy = goal.y - here.y;
   const dist = Math.hypot(dx, dy);
-  const step = RACKET_SPEED * dt;
-  if (dist <= step) return goal;
+  const step = Math.min(RACKET_SPEED, EASE_GAIN * dist) * dt;
+  if (dist <= step || dist < 0.01) return goal;
   return clampRacket({ x: here.x + (dx / dist) * step, y: here.y + (dy / dist) * step }, side);
 }
 
@@ -173,7 +211,7 @@ function inServiceBox(x, y, side, half) {
   return yOk && xOk;
 }
 
-// Makes a ball with every field a finite number. hitter is who hit it last ('top' | 'bottom').
+// Makes a ball with every field a finite number. hitter is who hit it last ('top' | 'bottom'); power (0..1) is how hard that hit was.
 function makeBall(b) {
   const o = b && typeof b === 'object' ? b : {};
   const sp = (v) => clamp(finite(v, 0), -MAX_SPEED, MAX_SPEED);
@@ -184,7 +222,8 @@ function makeBall(b) {
     vx: sp(o.vx), vy: sp(o.vy), vz: sp(o.vz),
     hitter: o.hitter === 'top' || o.hitter === 'bottom' ? o.hitter : 'top',
     bounces: Math.max(0, Math.floor(finite(o.bounces, 0))),
-    live: o.live !== false
+    live: o.live !== false,
+    power: clamp(finite(o.power, 0), 0, 1)   // how hard the last hit was, 0..1 (set by hitBall; the page shows a power hit)
   };
 }
 
@@ -196,9 +235,11 @@ function stepBall(ball, dt) {
   const events = [];
   const total = typeof dt === 'number' && !Number.isNaN(dt) ? Math.min(MAX_DT, dt) : 0;
   if (!(total > 0)) return { ball: b, events };
-  const n = Math.ceil(total / SUBSTEP);
-  const h = total / n;
+  // Every step is SUBSTEP long, the last one takes what is left, so the flight of a ball hardly depends on how the time is cut into frames
+  // (the same ball lands in the same place whatever dt the page hands in, which is what lets a player judge where it will land).
+  const n = Math.max(1, Math.ceil(total / SUBSTEP - 1e-9));
   for (let i = 0; i < n; i++) {
+    const h = i < n - 1 ? SUBSTEP : total - (n - 1) * SUBSTEP;
     const { x, y, z, vx, vy } = b;
     let vz = b.vz;
     if (z > 0 || vz > 0) vz -= GRAVITY * h;
@@ -255,8 +296,12 @@ function judge(event) {
 function hitBall(ball, side, aimX, opts) {
   const b = makeBall(ball);
   const o = opts && typeof opts === 'object' ? opts : {};
-  const tx = clamp(finite(aimX, COURT_W / 2), SHOT_SIDE_INSET, COURT_W - SHOT_SIDE_INSET);
-  const depth = clamp(finite(o.depth, RETURN_DEPTH), -150, 400);
+  const lob = o.lob === true;
+  const power = clamp(finite(o.power, 0), 0, 1);   // how hard the racket was moving; the ball carries it so the page can show a power hit
+  const tx = clamp(finite(aimX, COURT_W / 2), SHOT_SIDE_INSET, COURT_W - SHOT_SIDE_INSET) + clamp(finite(o.lateral, 0), -200, 200);
+  const depth = clamp(finite(o.depth, lob ? LOB_DEPTH : RETURN_DEPTH), -150, 400);
+  const arc = clamp(finite(o.arc, 0), -300, 300);
+  const speed = FLAT_SPEED * clamp(finite(o.speed, 1), 0.3, 3);
   const ty = side === 'bottom' ? depth : COURT_L - depth;
   const dir = side === 'bottom' ? -1 : 1;
   const dist = Math.max(60, Math.abs(ty - b.y));
@@ -267,16 +312,22 @@ function hitBall(ball, side, aimX, opts) {
       // a ball that hits the net: normal speed, steered to be h high where it reaches the net
       const t = dist / FLAT_SPEED, tn = Math.max(t * r, 0.005);
       const vz = (h - b.z + 0.5 * GRAVITY * tn * tn) / tn;
-      return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz, hitter: side, bounces: 0, live: true });
+      return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz, hitter: side, bounces: 0, live: true, power });
     }
     // a ball that lands at the aim and is h high at the net: height at the net is z(1-r) + g/2 T^2 r(1-r)
     const k = 0.5 * GRAVITY * r * (1 - r);
     const t = clamp(k > 1e-9 ? Math.sqrt(Math.max(0, (h - b.z * (1 - r)) / k)) : 0.5, 0.12, 3);
     const vz = (0.5 * GRAVITY * t * t - b.z) / t;
-    return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz, hitter: side, bounces: 0, live: true });
+    return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz, hitter: side, bounces: 0, live: true, power });
   }
-  const t0 = dist / FLAT_SPEED;
-  let vz = Math.max(MIN_SHOT_VZ, (0.5 * GRAVITY * t0 * t0 - b.z) / t0);
+  if (lob) {
+    // a lob: slow and high; it is in the air for dist / LOB_SPEED seconds and lands at the aim
+    const t = clamp(dist / LOB_SPEED, LOB_MIN_TIME, 3);
+    const vzl = (0.5 * GRAVITY * t * t - b.z) / t + arc;
+    return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz: vzl, hitter: side, bounces: 0, live: true, power });
+  }
+  const t0 = dist / speed;
+  let vz = Math.max(MIN_SHOT_VZ - SMASH_DROP * Math.max(0, b.z - HIT_HEIGHT), (0.5 * GRAVITY * t0 * t0 - b.z) / t0);
   let t = 0;
   for (let i = 0; i < 60; i++) {
     t = (vz + Math.sqrt(vz * vz + 2 * GRAVITY * b.z)) / GRAVITY;
@@ -284,7 +335,7 @@ function hitBall(ball, side, aimX, opts) {
     if (b.z + vz * tn - 0.5 * GRAVITY * tn * tn >= NET_HEIGHT + NET_CLEARANCE) break;
     vz += 10;
   }
-  return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz, hitter: side, bounces: 0, live: true });
+  return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz: vz + arc, hitter: side, bounces: 0, live: true, power });
 }
 
 // The opening shot of a rally: hit from the baseline of `side` at x, aimed at aimX.
@@ -293,26 +344,99 @@ function feedBall(side, x, aimX) {
 }
 
 // The racket of `side` returns the ball by itself when the ball reaches it: only a live ball last hit by
-// the other player, after exactly one bounce, on this side, close enough and low enough.
+// the other player, after exactly one bounce (or none, with opts.volley), on this side, close enough and low enough.
 // Returns the new ball, or null when there is no hit.
 function tryHit(ball, racket, side, aimX, opts) {
-  if (!ball || !racket || !Number.isFinite(racket.x) || !Number.isFinite(racket.y)) return null;
+  if (!canHit(ball, racket, side, !!(opts && opts.volley === true))) return null;
+  return hitBall(ball, side, aimX, opts);
+}
+
+// True when the racket of `side` can return the ball now (the rules of tryHit, without shooting).
+// With `volley` true a ball that has not bounced yet is hit too, up to VOLLEY_HEIGHT high (the match never passes it for a serve).
+// The ball must be on the racket's own side of the net, so a racket at the net cannot reach over it.
+function canHit(ball, racket, side, volley) {
+  if (!ball || !racket || !Number.isFinite(racket.x) || !Number.isFinite(racket.y)) return false;
   const b = makeBall(ball);
-  if (!b.live || b.hitter === side || b.bounces !== 1) return null;
-  if (side === 'top' ? b.y > NET_Y : b.y < NET_Y) return null;
-  if (b.z > HIT_HEIGHT || Math.hypot(b.x - racket.x, b.y - racket.y) > HIT_REACH) return null;
-  return hitBall(b, side, aimX, opts);
+  const air = volley === true && b.bounces === 0;
+  if (!b.live || b.hitter === side || !(b.bounces === 1 || air)) return false;
+  if (side === 'top' ? b.y > NET_Y : b.y < NET_Y) return false;
+  return b.z <= (air ? VOLLEY_HEIGHT : HIT_HEIGHT) && Math.hypot(b.x - racket.x, b.y - racket.y) <= HIT_REACH;
+}
+
+// How high the ball will be when it reaches `y`, flying on as it is now (no bounce counted); 0 if it would be under the ground.
+// null when it is not heading to that y.
+function heightAt(ball, y) {
+  if (!ball || !Number.isFinite(y) || !Number.isFinite(ball.y) || !Number.isFinite(ball.vy)) return null;
+  const b = makeBall(ball);
+  if (y === b.y) return b.z;
+  if (b.vy === 0) return null;
+  const t = (y - b.y) / b.vy;
+  if (!(t > 0)) return null;
+  return Math.max(0, b.z + b.vz * t - 0.5 * GRAVITY * t * t);
+}
+
+// Where a ball will first touch the ground, found by letting a copy of it fly with stepBall (the same steps the match takes, the net included), so
+// that the answer is where the ball really bounces: { x, y }. A ball that never bounces (it rolls) lands where it stops; null for a missing ball.
+function landingOf(ball) {
+  if (!ball || typeof ball !== 'object') return null;
+  let b = makeBall({ ...ball, live: true });
+  if (b.z <= 0 && b.vz <= 0) return { x: b.x, y: b.y };   // already on the ground
+  for (let i = 0; i < 600; i++) {
+    const r = stepBall(b, 1 / 60);
+    b = r.ball;
+    const e = r.events.find((v) => v.type === 'bounce');
+    if (e) return { x: e.x, y: e.y };
+  }
+  return { x: b.x, y: b.y };
+}
+
+// True when a live ball that has not bounced yet will make its first bounce where judge calls it out: outside the court or not in the half of the one who
+// has to return it (lines count as in). A player lets such a ball go. It is the same answer judge will give, for every ball.
+function goesOut(ball) {
+  if (!ball || typeof ball !== 'object') return false;
+  const b = makeBall(ball);
+  if (!b.live || b.bounces > 0) return false;
+  const l = landingOf(b);
+  return !inHalf(l.x, l.y, other(b.hitter));
 }
 
 // One step of the computer racket: waits at home, runs to the ball's x while it comes, and to the ball itself after its bounce.
-// `offset` (default 0) is how far it misjudges the ball sideways.
-function computerRacketStep(racket, ball, dt, side, offset) {
+// `offset` (default 0) is how far it misjudges the ball sideways. `plan` ({ shift, lunge }, optional) is how it means to meet the ball:
+// `shift` moves the racket sideways of the ball (that sets the direction of its shot), `lunge` 0..1 runs it through the ball toward the net
+// (that sets the power). With a plan but no lunge it settles for the ball: it slows down as it comes close and, within reach of the ball,
+// does not move toward the net faster than COMPUTER_NET_SPEED.
+function computerRacketStep(racket, ball, dt, side, offset, plan) {
   const home = startRacket(side);
   let target = home;
+  const shift = plan ? finite(plan.shift, 0) : 0, lunge = plan ? clamp(finite(plan.lunge, 0), 0, 1) : 0;
+  const net = side === 'top' ? 1 : -1;
+  const wantsNet = !!(plan && plan.net === true);
+  const standY = NET_Y - net * NET_STAND_DIST;
+  if (wantsNet) target = { x: home.x, y: standY };
+  let incoming = false;
   if (ball && Number.isFinite(ball.x) && Number.isFinite(ball.y) && ball.live !== false && ball.hitter !== side) {
-    target = { x: ball.x + finite(offset, 0), y: ball.bounces >= 1 ? ball.y : home.y };
+    incoming = true;
+    // It reads the ball like a person: before the bounce it runs to where the ball will come down, after it to where the ball is going.
+    const b = makeBall(ball);
+    const after = b.bounces >= 1;
+    const reads = (b.y - standY) * net > 0 && b.vy * net < 0;   // the ball still has to pass the net stand
+    if (wantsNet && !after && reads) {
+      // at the net it waits for the ball there and runs along the stand to where the ball crosses it
+      const lead = (standY - b.y) / b.vy;
+      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: standY + net * lunge * LUNGE_DISTANCE };
+    } else {
+      const lead = after ? 1 / EASE_GAIN : (b.vz + Math.sqrt(b.vz * b.vz + 2 * GRAVITY * b.z)) / GRAVITY;
+      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: after ? b.y + b.vy * lead + net * lunge * LUNGE_DISTANCE : home.y };
+    }
   }
-  return moveRacketToward(racket, target, dt, side);
+  const here = clampRacket(racket, side);
+  const moved = moveRacketToward(racket, target, dt, side);
+  if (plan && lunge === 0 && (incoming || !wantsNet) && Number.isFinite(dt) && dt > 0) {
+    const away = ball && Number.isFinite(ball.x) && Number.isFinite(ball.y) ? Math.hypot(ball.x - here.x, ball.y - here.y) : 0;
+    const cap = (COMPUTER_NET_SPEED + COMPUTER_SETTLE_GAIN * Math.max(0, away - HIT_REACH)) * dt;
+    if ((moved.y - here.y) * net > cap) return { x: moved.x, y: here.y + net * cap };
+  }
+  return moved;
 }
 
 // Where a serve by `side` starts: behind the baseline, SERVE_OFFSET from the centre. serveSide is 'right' or 'left'
@@ -323,16 +447,51 @@ function serveOrigin(side, serveSide) {
   return { x: COURT_W / 2 + sign * SERVE_OFFSET, y: bottom ? COURT_L + SERVE_BEHIND : -SERVE_BEHIND };
 }
 
+// The y of a server's racket: behind the baseline.
+function serveSpot(side) {
+  return side === 'top' ? -SERVE_BEHIND : COURT_L + SERVE_BEHIND;
+}
+
+// The half of the baseline a server may stand in: { lo, hi } in x, from the centre mark to the sideline.
+function serveHalf(side, serveSide) {
+  return serveOrigin(side, serveSide).x > COURT_W / 2 ? { lo: COURT_W / 2, hi: COURT_W } : { lo: 0, hi: COURT_W / 2 };
+}
+
+function boxRange(side, serveSide) {
+  const left = serveBox(side, serveSide) === 'left';
+  return { lo: (left ? 0 : COURT_W / 2) + SERVE_BOX_INSET, hi: (left ? COURT_W / 2 : COURT_W) - SERVE_BOX_INSET };
+}
+
+// Where a serve is aimed in its box when the server's racket stands at racketX: the further right the racket, the further right the aim.
+function serveAimX(side, serveSide, racketX) {
+  const h = serveHalf(side, serveSide), r = boxRange(side, serveSide);
+  const t = clamp((finite(racketX, (h.lo + h.hi) / 2) - h.lo) / (h.hi - h.lo), 0, 1);
+  return r.lo + t * (r.hi - r.lo);
+}
+
+// The racket x that gives a serve aimX (the reverse of serveAimX).
+function serveRacketX(side, serveSide, aimX) {
+  const h = serveHalf(side, serveSide), r = boxRange(side, serveSide);
+  return h.lo + clamp((finite(aimX, (r.lo + r.hi) / 2) - r.lo) / (r.hi - r.lo), 0, 1) * (h.hi - h.lo);
+}
+
+// Puts a racket where a server stands: x inside the serving half, y on the serve line.
+function clampServeRacket(racket, side, serveSide) {
+  const h = serveHalf(side, serveSide);
+  return { x: clamp(finite(racket && racket.x, (h.lo + h.hi) / 2), h.lo, h.hi), y: serveSpot(side) };
+}
+
 // The service box a serve must land in, diagonally opposite, as 'left' or 'right' on the screen.
 function serveBox(side, serveSide) {
   return serveOrigin(side, serveSide).x > COURT_W / 2 ? 'left' : 'right';
 }
 
 // A serve by `side` from the serveSide half, aimed at aimX, with power 0..1 (harder: faster, deeper, more error).
-// rand is called three times for the error: sideways, depth, arc. rand 0.5 means no error.
-function serveBall(side, serveSide, aimX, power, rand) {
+// originX (optional) is where the racket stands; the default is the old fixed spot. rand is called three times for the error: sideways, depth, arc. rand 0.5 means no error.
+function serveBall(side, serveSide, aimX, power, rand, originX) {
   const s = side === 'top' ? 'top' : 'bottom';
   const o = serveOrigin(s, serveSide);
+  if (Number.isFinite(originX)) o.x = originX;   // the serve starts at the racket
   const box = serveBox(s, serveSide);
   const p = clamp(finite(power, 0.5), 0, 1);
   const draw = () => clamp(finite(typeof rand === 'function' ? rand() : 0.5, 0.5), 0, 1);
@@ -351,7 +510,7 @@ function serveBall(side, serveSide, aimX, power, rand) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { COURT_W, COURT_L, NET_Y, RACKET_SPEED, RACKET_HALF_H, NET_GAP, BEHIND_BASELINE, SIDE_MARGIN, START_INSET,
+  module.exports = { landingOf, goesOut, LOB_MIN_TIME, SMASH_DROP, VOLLEY_HEIGHT, NET_STAND_DIST, heightAt, COMPUTER_SETTLE_GAIN, EASE_GAIN, RACKET_HALF_W, COMPUTER_NET_SPEED, LUNGE_DISTANCE, LOB_SPEED, LOB_DEPTH, serveSpot, serveHalf, serveAimX, serveRacketX, clampServeRacket, canHit, COURT_W, COURT_L, NET_Y, RACKET_SPEED, RACKET_HALF_H, NET_GAP, BEHIND_BASELINE, SIDE_MARGIN, START_INSET,
     GRAVITY, NET_HEIGHT, NET_CLEARANCE, SERVICE_LEN, RESTITUTION, GROUND_DRAG, MIN_BOUNCE_VZ, NET_BOUNCE, FLAT_SPEED, MIN_SHOT_VZ, RETURN_DEPTH,
     SHOT_SIDE_INSET, HIT_REACH, HIT_HEIGHT, FEED_HEIGHT, MAX_DT, SUBSTEP, MAX_SPEED, POS_LIMIT,
     CORD_BAND, SERVE_HEIGHT, SERVE_BEHIND, SERVE_OFFSET, SERVE_BOX_INSET, SERVE_DEPTH_MIN, SERVE_DEPTH_MAX, SERVE_SPEED_MIN, SERVE_SPEED_MAX, SERVE_ERR_BASE, SERVE_ERR_POWER, SERVE_ARC_ERR,
@@ -505,18 +664,111 @@ if (typeof module !== 'undefined') {
 REGISTRY['./scoring.js'] = module.exports;
 </script>
 <script>
+// How a racket sends the ball: the direction comes from where the ball meets the racket, the power from how fast the racket
+// moves toward the net, a lob from the shot button. Used by both players. Pure functions: chance comes in as `rand`.
+const SH_PH = typeof require === 'function' ? require('./physics.js') : null;
+
+// Tune the feel of the shots here.
+const SHOTS = {
+  AIM_RANGE: 150,         // a ball met at the very edge of the racket lands this far sideways of where it was met; the middle sends it straight
+  POWER_FREE: 100,        // moving toward the net slower than this (units/s) is "standing still": a normal return
+  POWER_FULL: 600,        // moving toward the net at this speed or faster is full power
+  POWER_SPEED_GAIN: 0.9,  // full power flies (1 + this) times as fast as a normal return
+  POWER_DEPTH: 60,        // full power lands this much nearer the baseline than a normal return
+  LATERAL_ERR: 25,        // at full power the landing spot is off sideways by up to this much, either way
+  POWER_WINDOW: 0.15,     // power counts how the racket moved toward the net over this many seconds before the hit, not at one instant
+  POWER_SIGN: 0.35,       // from this power on the page shows a power hit (glow while it builds, trail on the ball)
+  ARC_ERR: 70,            // at full power the vertical speed is off by up to this much (units/s): the ball lands long or short, or clips the net
+  LOB_LATERAL: 8,         // a lob lands off sideways by up to this much
+  LOB_DEPTH_ERR: 67,      // a lob lands this much nearer or farther than it was meant to, up to this far either way (even chance): LOB_DEPTH 40 and 67 make about one lob in five land long
+  LOB_SPEED: SH_PH.LOB_SPEED,   // (set in physics.js) forward speed of a lob
+  LOB_DEPTH: SH_PH.LOB_DEPTH,   // (set in physics.js) a lob lands this far in front of the baseline
+};
+
+function shNum(v, fallback) { return typeof v === 'number' && Number.isFinite(v) ? v : fallback; }
+function shClamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+function shDraw(rand) { return shClamp(shNum(typeof rand === 'function' ? rand() : 0.5, 0.5), 0, 1); }
+
+// The racket's recent path, for power. A track is a list of { t, y } samples (t in seconds on the match clock, y along the court); swingTrack adds
+// one and drops the ones older than the window (it keeps the newest sample at or before the window start, so the speed can be read exactly).
+function swingTrack(track, t, y) {
+  const list = Array.isArray(track) ? track : [];
+  const last = list[list.length - 1];
+  if (typeof t !== 'number' || !Number.isFinite(t) || typeof y !== 'number' || !Number.isFinite(y) || (last && t < last.t)) return list;
+  const next = list.concat([{ t, y }]);
+  let from = 0;
+  while (from + 1 < next.length && next[from + 1].t <= t - SHOTS.POWER_WINDOW) from++;
+  return next.slice(from);
+}
+
+// How fast the racket moved along the court (units/s, positive toward y 560) over the last POWER_WINDOW seconds of the track: its position now
+// against its position that long ago (read between samples), so the same swing gives the same speed at any frame rate. 0 with less than two samples.
+function swingSpeed(track) {
+  if (!Array.isArray(track) || track.length < 2) return 0;
+  const end = track[track.length - 1];
+  const t0 = Math.max(track[0].t, end.t - SHOTS.POWER_WINDOW);
+  if (!(end.t > t0)) return 0;
+  let i = 0;
+  while (i + 1 < track.length - 1 && track[i + 1].t <= t0) i++;
+  const a = track[i], b = track[i + 1];
+  const y0 = b.t > a.t ? a.y + (b.y - a.y) * ((t0 - a.t) / (b.t - a.t)) : a.y;
+  return (end.y - y0) / (end.t - t0);
+}
+
+// Where the ball meets the racket across its width: -1 at the left edge, 0 in the middle, 1 at the right edge (as seen on screen).
+function contactOffset(ball, racket) {
+  if (!ball || !racket || !Number.isFinite(ball.x) || !Number.isFinite(racket.x)) return 0;
+  return shClamp((ball.x - racket.x) / SH_PH.RACKET_HALF_W, -1, 1);
+}
+
+// Power 0..1 from the racket's speed along the court (units/s, positive is toward y 560) for the racket of `side`: only moving toward the net counts.
+function swingPower(vy, side) {
+  const v = shNum(vy, 0) * (side === 'top' ? 1 : -1);
+  return shClamp((v - SHOTS.POWER_FREE) / (SHOTS.POWER_FULL - SHOTS.POWER_FREE), 0, 1);
+}
+
+// The racket of `side` returns the ball when it reaches it (same conditions as physics.tryHit). swing is { vy, lob, volley }: the racket's speed
+// along the court and whether the shot button is held, and whether a ball that has not bounced may be hit (volley; never for a serve),
+// and letGo: this racket judges a ball in the air and lets it go when it will land out (a person does not play a ball that is going out). Returns the new ball, or null when there is no hit. Always draws two numbers from rand.
+function contactShot(ball, racket, side, swing, rand) {
+  const sw = swing && typeof swing === 'object' ? swing : {};
+  if (!SH_PH.canHit(ball, racket, side, sw.volley === true)) return null;
+  if (sw.letGo === true && SH_PH.goesOut(ball)) return null;   // only a ball that has not bounced can be going out
+  const r1 = shDraw(rand), r2 = shDraw(rand);
+  const aimX = ball.x + contactOffset(ball, racket) * SHOTS.AIM_RANGE;
+  if (sw.lob === true) {
+    return SH_PH.hitBall(ball, side, aimX, { lob: true, lateral: (r1 * 2 - 1) * SHOTS.LOB_LATERAL, depth: SHOTS.LOB_DEPTH + (r2 * 2 - 1) * SHOTS.LOB_DEPTH_ERR });
+  }
+  const p = swingPower(sw.vy, side);
+  return SH_PH.hitBall(ball, side, aimX, {
+    speed: 1 + SHOTS.POWER_SPEED_GAIN * p, depth: SH_PH.RETURN_DEPTH - SHOTS.POWER_DEPTH * p,
+    lateral: (r1 * 2 - 1) * SHOTS.LATERAL_ERR * p, power: p, arc: (r2 * 2 - 1) * SHOTS.ARC_ERR * p,
+  });
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { SHOTS, contactOffset, swingPower, swingTrack, swingSpeed, contactShot };
+}
+
+REGISTRY['./shots.js'] = module.exports;
+</script>
+<script>
 // The computer opponent: how it places its shots, where it misjudges, how it serves.
+// It plays by the same rules as the player: its racket runs at a limited speed, and where the ball meets the racket and how fast the
+// racket moves toward the net decide the direction and the power of its shot (src/shots.js). Its choices and its human errors are here.
 // Pure functions: chance comes in as `rand` (a function returning 0..1), never from Math.random.
 const CP_PH = typeof require === 'function' ? require('./physics.js') : null;
+const CP_SH = typeof require === 'function' ? require('./shots.js') : null;
 
 // The computer's strength. Everything a person would tune is here.
 const COMPUTER = {
-  SHOT_ERROR_CHANCE: 0.10,  // share of its shots that go wrong (into the net or long)
-  NET_SHARE: 0.5,           // of those, the share that go into the net (the rest land long, out)
-  NET_CLEARANCE: -14,       // a net ball passes the net this far above its top (negative: below it)
-  LONG_DEPTH: -40,          // a long ball lands this far in front of the baseline (negative: beyond it, out)
-  DEPTH_MIN: 70,            // a good shot lands between DEPTH_MIN and DEPTH_MAX in front of the baseline
-  DEPTH_MAX: 130,
+  OFFCENTRE_CHANCE: 0.12,   // share of its shots where it meets the ball off-centre without meaning to
+  OFFCENTRE_MIN: 14,        // ...by this many units sideways of where it meant to (the racket half-width is 28)...
+  OFFCENTRE_MAX: 28,        // ...to this many, to either side
+  HARD_CHANCE: 0.20,        // share of its shots where it runs through the ball and hits too hard (and so too long or into the net)
+  HARD_LUNGE: 1,            // how hard that is, 0..1 (1 is full power)
+  MAX_AIM: 0.85,            // it meets the ball at most this far from the racket middle (share of the half-width) to aim on purpose
+  MAX_SHIFT: 30,            // its racket never stands further than this sideways of the ball (the racket still reaches the ball)
   PLACE_AWAY: 0.7,          // share of shots placed to the side away from the player (the rest go anywhere)
   MISJUDGE_CHANCE: 0.10,    // share of balls it misjudges: it runs to the wrong place
   MISJUDGE_MIN: 50,         // the misjudged place is this far from the ball (more than the racket reaches)...
@@ -524,7 +776,27 @@ const COMPUTER = {
   SERVE_POWER_MIN: 0.3,     // its serve power varies between these
   SERVE_POWER_MAX: 0.8,
   SECOND_SERVE_FACTOR: 0.6, // a second serve has this share of the power
+  SHORT_BALL: 190,          // a ball of the player that lands closer to the net than this (units) is a short ball (a normal return lands 180 from the net)
+  APPROACH_CHANCE: 0.25,     // share of short balls after which the computer comes forward to the net
+  LET_GO_CHANCE: 0.9,        // share of balls going out (in the air, landing beyond its lines) that it recognises and lets go; the rest it plays, as a person sometimes does
+  LOB_REACT_MIN: 0.79,        // when it stands at the net and is lobbed, it notices and starts back after this share of the lob's flight time...
+  LOB_REACT_MAX: 0.99,        // ...up to this share (a deep lob is then often too far away to reach, whatever spot it was hit from)
 };
+
+// The three levels. Each lists only what differs from COMPUTER; advanced is empty because COMPUTER is advanced (the strength the human approved
+// after task 4). Beginner errs about twice as often, pro about a third as often. Change a number here to retune a level.
+const LEVELS = {
+  beginner: { OFFCENTRE_CHANCE: 0.24, HARD_CHANCE: 0.36, MISJUDGE_CHANCE: 0.22, LET_GO_CHANCE: 0.8 },
+  advanced: {},
+  pro: { OFFCENTRE_CHANCE: 0.04, HARD_CHANCE: 0.07, MISJUDGE_CHANCE: 0.03, LET_GO_CHANCE: 0.97 },
+};
+const LEVEL_NAMES = ['beginner', 'advanced', 'pro'];
+
+// The full set of numbers for a level name (anything unknown is advanced). A copy: changing it changes nothing else.
+function computerLevel(name) {
+  const own = typeof name === 'string' && Object.prototype.hasOwnProperty.call(LEVELS, name) ? LEVELS[name] : {};
+  return { ...COMPUTER, ...own };
+}
 
 function cpDraw(rand) {
   const v = typeof rand === 'function' ? rand() : 0.5;
@@ -533,44 +805,86 @@ function cpDraw(rand) {
 
 // How far sideways the computer misjudges the next ball: 0 for most balls, else a signed offset.
 // Always draws three numbers from rand.
-function computerMisjudge(rand) {
+function computerMisjudge(rand, level) {
+  const K = level || COMPUTER;
   const r1 = cpDraw(rand), r2 = cpDraw(rand), r3 = cpDraw(rand);
-  if (!(r1 < COMPUTER.MISJUDGE_CHANCE)) return 0;
-  return (r2 < 0.5 ? -1 : 1) * (COMPUTER.MISJUDGE_MIN + r3 * (COMPUTER.MISJUDGE_MAX - COMPUTER.MISJUDGE_MIN));
+  if (!(r1 < K.MISJUDGE_CHANCE)) return 0;
+  return (r2 < 0.5 ? -1 : 1) * (K.MISJUDGE_MIN + r3 * (K.MISJUDGE_MAX - K.MISJUDGE_MIN));
 }
 
-// The computer's next shot given where the player stands. Returns { aimX, opts, error } where error is
-// 'none', 'net' or 'long' and opts goes to hitBall. Always draws five numbers from rand.
-function computerShot(playerX, rand) {
+// The computer's next shot given where the player stands. Returns { aimX, errShift, lunge, error }: where it means to send the ball,
+// how far sideways it will wrongly stand of where it meant to (0 for most shots), how hard it runs through the ball (0 for most shots),
+// and 'none', 'offcentre', 'hard' or 'both'. Always draws five numbers from rand.
+function computerShot(playerX, rand, level) {
+  const K = level || COMPUTER;
   const r1 = cpDraw(rand), r2 = cpDraw(rand), r3 = cpDraw(rand), r4 = cpDraw(rand), r5 = cpDraw(rand);
   const px = typeof playerX === 'number' && Number.isFinite(playerX) ? playerX : 180;
   let lo = 24, hi = 336;
-  if (r3 < COMPUTER.PLACE_AWAY) {
+  if (r3 < K.PLACE_AWAY) {
     if (px <= 180) lo = 210; else hi = 150;
   }
   const aimX = lo + r4 * (hi - lo);
-  const depth = COMPUTER.DEPTH_MIN + r5 * (COMPUTER.DEPTH_MAX - COMPUTER.DEPTH_MIN);
-  if (r1 < COMPUTER.SHOT_ERROR_CHANCE) {
-    if (r2 < COMPUTER.NET_SHARE) return { aimX, opts: { depth, clearance: COMPUTER.NET_CLEARANCE }, error: 'net' };
-    return { aimX, opts: { depth: COMPUTER.LONG_DEPTH }, error: 'long' };
-  }
-  return { aimX, opts: { depth }, error: 'none' };
+  const off = r1 < K.OFFCENTRE_CHANCE;
+  const hard = r2 < K.HARD_CHANCE;
+  const errShift = off ? (r5 < 0.5 ? -1 : 1) * (K.OFFCENTRE_MIN + Math.abs(r5 - 0.5) * 2 * (K.OFFCENTRE_MAX - K.OFFCENTRE_MIN)) : 0;
+  return { aimX, errShift, lunge: hard ? K.HARD_LUNGE : 0, error: off && hard ? 'both' : off ? 'offcentre' : hard ? 'hard' : 'none' };
+}
+
+// How far sideways of the ball the computer racket should stand to send the ball toward plan.aimX (the rule of the contact point),
+// plus its mistake. Positive is to the right on screen.
+function computerShift(plan, ballX, level) {
+  const K = level || COMPUTER;
+  if (!plan || !Number.isFinite(ballX)) return 0;
+  const aim = Number.isFinite(plan.aimX) ? plan.aimX : ballX;
+  const offset = Math.min(K.MAX_AIM, Math.max(-K.MAX_AIM, (aim - ballX) / CP_SH.SHOTS.AIM_RANGE));
+  const shift = -offset * CP_PH.RACKET_HALF_W + (Number.isFinite(plan.errShift) ? plan.errShift : 0);
+  return Math.min(K.MAX_SHIFT, Math.max(-K.MAX_SHIFT, shift));
 }
 
 // The computer's serve into box 'left' or 'right': { aimX, power }. Always draws two numbers from rand.
 // A second serve is softer.
-function computerServe(box, rand, second) {
+function computerServe(box, rand, second, level) {
+  const K = level || COMPUTER;
   const r1 = cpDraw(rand), r2 = cpDraw(rand);
   const half = CP_PH.COURT_W / 2;
   const lo = (box === 'right' ? half : 0) + CP_PH.SERVE_BOX_INSET;
   const hi = (box === 'right' ? CP_PH.COURT_W : half) - CP_PH.SERVE_BOX_INSET;
-  let power = COMPUTER.SERVE_POWER_MIN + r2 * (COMPUTER.SERVE_POWER_MAX - COMPUTER.SERVE_POWER_MIN);
-  if (second) power *= COMPUTER.SECOND_SERVE_FACTOR;
+  let power = K.SERVE_POWER_MIN + r2 * (K.SERVE_POWER_MAX - K.SERVE_POWER_MIN);
+  if (second) power *= K.SECOND_SERVE_FACTOR;
   return { aimX: lo + r1 * (hi - lo), power };
 }
 
+// Does the computer come forward after a ball that landed `depth` units from the net? Always draws one number from rand.
+function computerApproach(depth, rand, level) {
+  const K = level || COMPUTER;
+  const r = cpDraw(rand);
+  return typeof depth === 'number' && Number.isFinite(depth) && depth < K.SHORT_BALL && r < K.APPROACH_CHANCE;
+}
+
+// Does the computer at the net give up the net because this ball will fly over it (a lob)? True when the ball will pass the
+// net stand higher than a volley can reach.
+function computerRetreats(ball) {
+  if (!ball || typeof ball !== 'object') return false;
+  const h = CP_PH.heightAt(ball, CP_PH.NET_Y - CP_PH.NET_STAND_DIST);
+  return h !== null && h > CP_PH.VOLLEY_HEIGHT;
+}
+
+// How long (seconds) the computer at the net takes to notice that it has been lobbed and start back: a share of the flight time of the lob
+// (`flight`, seconds; 1 when not given), between LOB_REACT_MIN and LOB_REACT_MAX. Always draws one number from rand.
+function computerLobReaction(rand, level, flight) {
+  const K = level || COMPUTER;
+  const f = typeof flight === "number" && Number.isFinite(flight) && flight > 0 ? flight : 1;
+  return (K.LOB_REACT_MIN + cpDraw(rand) * (K.LOB_REACT_MAX - K.LOB_REACT_MIN)) * f;
+}
+
+// Does the computer recognise that the ball in the air is going out and let it go? Always draws one number from rand.
+function computerLetsGo(rand, level) {
+  const K = level || COMPUTER;
+  return cpDraw(rand) < K.LET_GO_CHANCE;
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { COMPUTER, computerMisjudge, computerShot, computerServe };
+  module.exports = { COMPUTER, LEVELS, LEVEL_NAMES, computerLevel, computerLobReaction, computerLetsGo, computerMisjudge, computerShot, computerShift, computerServe, computerApproach, computerRetreats };
 }
 
 REGISTRY['./computer.js'] = module.exports;
@@ -583,14 +897,18 @@ REGISTRY['./computer.js'] = module.exports;
 const MP = typeof require === 'function' ? require('./physics.js') : null;
 const MS = typeof require === 'function' ? require('./scoring.js') : null;
 const MC = typeof require === 'function' ? require('./computer.js') : null;
+const MH = typeof require === 'function' ? require('./shots.js') : null;
 
 const MATCH = {
   PAUSE: 1.0,                 // seconds the result of a point stays on screen
   FAULT_PAUSE: 0.8,           // seconds a fault or a let stays on screen before the next serve
   SERVE_DELAY: 0.6,           // seconds the computer takes before it serves
-  PLAYER_SERVE_POWER: 0.5,    // the simple serve of the player (a click, a tap or Space): medium power, at the middle of the box...
+  SERVE_CHARGE_TIME: 1.2,     // seconds of holding that build a serve from power 0 to power 1
+  SERVE_READY: 3,             // the server's racket must be this close to the serve line to start a serve
+  ARRIVE: 1.5,                // the computer serves when its racket is this close to its serve spot
+  SERVE_WAIT_MAX: 2,          // ...or this many seconds after its delay, whatever happens
+  PLAYER_SERVE_POWER: 0.5,    // a serve asked for with the plain serve action (input.serve, used by simulations): medium power...
   PLAYER_SECOND_POWER: 0.4,   // ...and a little softer on the second serve
-  PLAYER_AIMS: [90, 270, 150, 300, 60, 210, 120, 330], // where the player returns go, in turn, until aiming comes in a later task
 };
 
 function sideOf(who) { return who === 'computer' ? 'top' : 'bottom'; }
@@ -641,18 +959,23 @@ function gameMessage(prev, next) {
 
 // ---------------------------------------------------------------- the match
 
+// The numbers of the computer for this match: its level (src/computer.js).
+function strengthOf(m) { return MC.computerLevel(m && m.level); }
+
 function waitingFields(score) {
   return { server: sideOf(score.server), serveSide: MS.serveSide(score) };
 }
 
-// A new match. firstServer is 'player' or 'computer' (anything else: 'player').
-function newMatchState(firstServer) {
+// A new match. firstServer is 'player' or 'computer' (anything else: 'player'); level is 'beginner', 'advanced' or 'pro' (anything else: 'advanced').
+function newMatchState(firstServer, level) {
   const score = MS.newMatch(firstServer);
   return {
+    level: MC.LEVEL_NAMES.includes(level) ? level : 'advanced', swing: [], clock: 0, power: 0, cpuReact: 0,
     score, phase: 'waiting', timer: score.server === 'computer' ? MATCH.SERVE_DELAY : 0,
     ...waitingFields(score), faults: 0, serve: null, ball: null,
     racket: MP.startRacket('bottom'), opponent: MP.startRacket('top'),
-    hits: 0, message: '', message2: '', cpuOffset: 0, cpuShot: null, aimIndex: 0, log: [],
+    hits: 0, message: '', message2: '', cpuOffset: 0, cpuShot: null, log: [],
+    charge: 0, holding: false, prevHold: false, cpuServe: null, walked: false, racketVy: 0, opponentVy: 0, cpuNet: false,
   };
 }
 
@@ -665,7 +988,7 @@ function pointOver(m, winnerSide, kind, message) {
   const entry = { kind, winner: who };
   if (kind === 'missed' && who === 'player' && m.cpuOffset !== 0) entry.misjudged = true;
   return {
-    ...m, score: next, faults: 0, serve: null, ball: deadBall(m.ball), message, message2: gameMessage(m.score, next),
+    ...m, score: next, faults: 0, serve: null, cpuNet: false, cpuReact: 0, cpuLet: null, ball: deadBall(m.ball), message, message2: gameMessage(m.score, next),
     log: [...m.log, entry],
     phase: next.winner ? 'over' : 'pause', timer: MATCH.PAUSE,
   };
@@ -681,28 +1004,28 @@ function serveOver(m, outcome) {
 }
 
 function rollComputer(m, rand) {
-  return { ...m, cpuOffset: MC.computerMisjudge(rand), cpuShot: MC.computerShot(m.racket.x, rand) };
+  return { ...m, cpuLet: null, cpuOffset: MC.computerMisjudge(rand, strengthOf(m)), cpuShot: MC.computerShot(m.racket.x, rand, strengthOf(m)) };
 }
 
-function launchServe(m, rand) {
+// The serve leaves the server's racket: it starts where the racket stands and is aimed by where the racket stands along the baseline.
+// `power` is 0..1 (the hold of the player, the pick of the computer).
+function launchServe(m, power, rand) {
   const box = MP.serveBox(m.server, m.serveSide);
-  let aimX, power;
-  if (m.server === 'top') {
-    ({ aimX, power } = MC.computerServe(box, rand, m.faults > 0));
-  } else {
-    aimX = box === 'left' ? MP.COURT_W / 4 : MP.COURT_W * 3 / 4; // the simple serve aims at the middle of the box; aiming comes in a later task
-    power = m.faults > 0 ? MATCH.PLAYER_SECOND_POWER : MATCH.PLAYER_SERVE_POWER;
-  }
-  const ball = MP.serveBall(m.server, m.serveSide, aimX, power, rand);
+  const racket = m.server === 'top' ? m.opponent : m.racket;
+  const aimX = MP.serveAimX(m.server, m.serveSide, racket.x);
+  const ball = MP.serveBall(m.server, m.serveSide, aimX, power, rand, racket.x);
   let next = {
     ...m, phase: 'play', ball, serve: { server: m.server, box, cord: false }, hits: 1, message: '', message2: '', cpuOffset: 0,
+    charge: 0, holding: false, cpuServe: null, cpuNet: false, cpuReact: 0, cpuLet: null,
   };
-  if (m.server === 'top') next.opponent = { x: ball.x, y: MP.startRacket('top').y };
-  else next = rollComputer(next, rand);
+  if (m.server !== 'top') next = rollComputer(next, rand);
   return next;
 }
 
-function playStep(m, step, rand) {
+// Seconds until a ball in the air comes down to the ground, flying on as it is now.
+function airTime(b) { return (b.vz + Math.sqrt(b.vz * b.vz + 2 * MP.GRAVITY * b.z)) / MP.GRAVITY; }
+
+function playStep(m, step, input, rand) {
   const r = MP.stepBall(m.ball, step);
   m = { ...m, ball: r.ball };
   for (const e of r.events) {
@@ -713,38 +1036,119 @@ function playStep(m, step, rand) {
     } else {
       const res = MP.judge(e);
       if (res) return pointOver(m, otherSide(res.loser), res.reason === 'second bounce' ? (m.hits <= 1 ? 'ace' : 'missed') : res.reason, pointMessage(res.reason, m.hits));
+      // A ball of the player that lands short in the rally: the computer may come forward to the net (a deep one sends it back).
+      if (e.type === 'bounce' && e.n === 1 && e.hitter === 'bottom') m = { ...m, cpuNet: MC.computerApproach(MP.NET_Y - e.y, rand, strengthOf(m)) };
     }
   }
-  const aims = MATCH.PLAYER_AIMS;
-  const mine = MP.tryHit(m.ball, m.racket, 'bottom', aims[m.aimIndex % aims.length]);
-  if (mine) return rollComputer({ ...m, ball: mine, hits: m.hits + 1, aimIndex: m.aimIndex + 1 }, rand);
-  const shot = m.cpuShot || { aimX: 180, opts: {} };
-  const theirs = MP.tryHit(m.ball, m.opponent, 'top', shot.aimX, shot.opts);
+  // A ball in the air may be volleyed, except a serve: the receiver always lets it bounce.
+  const volley = !m.serve;
+  const mine = MH.contactShot(m.ball, m.racket, 'bottom', { vy: m.racketVy, lob: !!(input && input.shot), volley, letGo: true }, rand);   // a person lets a ball go that is going out
+  if (mine) {
+    const next = rollComputer({ ...m, ball: mine, hits: m.hits + 1 }, rand);
+    // A lob over the computer at the net sends it back, but it needs a moment to notice (it stands still for cpuReact seconds).
+    const retreat = m.cpuNet && MC.computerRetreats(mine);
+    return { ...next, cpuNet: m.cpuNet && !retreat, cpuReact: retreat ? MC.computerLobReaction(rand, strengthOf(m), airTime(mine)) : 0 };
+  }
+  // The computer judges a ball going out too, once per ball, and sometimes misjudges it (cpuLet false: it plays the ball).
+  if (volley && m.cpuLet == null && MP.goesOut(m.ball) && MP.canHit(m.ball, m.opponent, 'top', true)) m = { ...m, cpuLet: MC.computerLetsGo(rand, strengthOf(m)) };
+  const theirs = MH.contactShot(m.ball, m.opponent, 'top', { vy: m.opponentVy, lob: false, volley, letGo: m.cpuLet === true }, rand);
   if (theirs) return { ...m, ball: theirs, hits: m.hits + 1 };
   return m;
 }
 
-// Moves the match forward by dt seconds. input is { racket, serve }: the player racket position (the page moves it)
-// and whether the player pressed the serve action since the last step. Returns the new state.
+// The computer racket plan for this step: where to stand next to the ball and whether to run through it.
+function computerPlan(m) {
+  const p = m.cpuShot;
+  if (!p || !m.ball) return undefined;
+  return { shift: MC.computerShift(p, m.ball.x, strengthOf(m)), lunge: p.lunge, net: m.cpuNet };
+}
+
+// The ball in the server's hand, waiting at the racket.
+function tossBall(m) {
+  const r = m.server === 'top' ? m.opponent : m.racket;
+  return MP.makeBall({ x: r.x, y: r.y, z: MP.SERVE_HEIGHT, hitter: m.server, live: false });
+}
+
+// Waiting to serve. The server's racket stands on the serve line; the ball waits at it.
+// The player holds to build power (input.hold), moves sideways to aim and releases to serve; input.serve serves at once.
+// The computer walks to a spot it picked, then serves after its delay.
+function waitStep(m, input, step, rand, prev) {
+  m = { ...m };
+  if (m.server === 'top') {
+    if (!m.cpuServe) m.cpuServe = MC.computerServe(MP.serveBox('top', m.serveSide), rand, m.faults > 0, strengthOf(m));
+    const spot = { x: MP.serveRacketX('top', m.serveSide, m.cpuServe.aimX), y: MP.serveSpot('top') };
+    m.opponent = MP.moveRacketToward(m.opponent, spot, step, 'top');
+    m.timer = m.timer - step;
+    const arrived = Math.hypot(m.opponent.x - spot.x, m.opponent.y - spot.y) < MATCH.ARRIVE;
+    if (m.timer <= 0 && (arrived || m.timer <= -MATCH.SERVE_WAIT_MAX)) {
+      m.opponent = MP.clampServeRacket(arrived ? spot : m.opponent, 'top', m.serveSide);
+      return launchServe(m, m.cpuServe.power, rand);
+    }
+    m.ball = tossBall(m);
+    return m;
+  }
+  m.opponent = MP.computerRacketStep(m.opponent, null, step, 'top', 0);
+  if (!m.walked) {
+    // the player first walks to the middle of the serving half; then the input takes over
+    const h = MP.serveHalf('bottom', m.serveSide), mid = (h.lo + h.hi) / 2;
+    const dx = mid - prev.x, sx = MP.RACKET_SPEED * step;
+    m.racket = { x: Math.abs(dx) <= sx ? mid : prev.x + Math.sign(dx) * sx, y: m.racket.y };
+    if (m.racket.x === mid) m.walked = true;
+  }
+  const spot = MP.clampServeRacket(m.racket, 'bottom', m.serveSide);
+  const dy = spot.y - m.racket.y, stepY = MP.RACKET_SPEED * step;
+  m.racket = { x: spot.x, y: Math.abs(dy) <= stepY ? spot.y : m.racket.y + Math.sign(dy) * stepY };
+  const ready = m.walked && Math.abs(m.racket.y - spot.y) <= MATCH.SERVE_READY;
+  const hold = !!(input && input.hold);
+  const power = m.faults > 0 ? MATCH.PLAYER_SECOND_POWER : MATCH.PLAYER_SERVE_POWER;
+  if (input && input.serve) return launchServe(m, power, rand);
+  if (!m.holding && hold && !m.prevHold && ready) { m.holding = true; m.charge = 0; }
+  m.prevHold = hold;
+  if (m.holding) {
+    if (hold) m.charge = Math.min(1, m.charge + step / MATCH.SERVE_CHARGE_TIME);
+    else return launchServe(m, m.charge, rand);
+  }
+  m.ball = tossBall(m);
+  return m;
+}
+
+// Moves the match forward by dt seconds. input is { racket, hold, shot, serve }: the player racket position (the page moves it),
+// whether the serve button is held (hold), whether the shot button is held (shot, a lob when the racket hits the ball),
+// and whether to serve at once at medium power (serve, for simulations). Returns the new state.
 function stepMatch(state, input, dt, rand) {
   const step = typeof dt === 'number' && Number.isFinite(dt) && dt > 0 ? Math.min(MP.MAX_DT, dt) : 0;
   let m = { ...state, racket: MP.clampRacket(input && input.racket ? input.racket : state.racket, 'bottom') };
+  // Power counts the racket's movement over a short window (shots.js), so the same swing gives the same power at any frame rate.
+  if (step > 0) {
+    const clock = (Number.isFinite(state.clock) ? state.clock : 0) + step;
+    const old = Array.isArray(state.swing) ? state.swing : [];
+    const seeded = old.length > 0 && Math.abs(old[old.length - 1].y - state.racket.y) < 1e-6 ? old : [{ t: clock - step, y: state.racket.y }];   // a racket that was moved by hand starts a new track
+    m.clock = clock;
+    m.swing = MH.swingTrack(seeded, clock, m.racket.y);
+    m.racketVy = MH.swingSpeed(m.swing);
+  } else m.racketVy = 0;
+  m.power = MH.swingPower(m.racketVy, 'bottom');
+  m = stepPhase(m, input, step, rand, state.racket);
+  m.opponentVy = step > 0 ? (m.opponent.y - state.opponent.y) / step : 0;
+  return m;
+}
+
+function stepPhase(m, input, step, rand, prev) {
   if (m.phase === 'play') {
-    m = playStep(m, step, rand);
-    if (m.phase === 'play') m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', m.cpuOffset);
+    m = playStep(m, step, input, rand);
+    if (m.phase !== 'play') return m;
+    // lobbed while at the net: the computer has not noticed yet, its racket stands still
+    if (m.cpuReact > 0) return { ...m, cpuReact: Math.max(0, m.cpuReact - step) };
+    m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', m.cpuOffset, computerPlan(m));
     return m;
   }
+  if (m.phase === 'waiting') return waitStep(m, input, step, rand, prev);
   m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', 0);
-  if (m.phase === 'waiting') {
-    m.timer = Math.max(0, m.timer - step);
-    const go = m.server === 'top' ? m.timer <= 0 : !!(input && input.serve);
-    return go ? launchServe(m, rand) : m;
-  }
   if (m.ball) m.ball = MP.stepBall(m.ball, step).ball;
   if (m.phase === 'pause') {
     m.timer -= step;
     if (m.timer <= 0) {
-      m = { ...m, ...waitingFields(m.score), phase: 'waiting', ball: null, serve: null };
+      m = { ...m, ...waitingFields(m.score), phase: 'waiting', ball: null, serve: null, charge: 0, holding: false, prevHold: !!(input && input.hold), cpuServe: null, walked: false };
       m.timer = m.server === 'top' ? MATCH.SERVE_DELAY : 0;
     }
   }
@@ -769,17 +1173,19 @@ REGISTRY['./match.js'] = module.exports;
   const BALL_R = 5;
   const MAX_STEP = 1 / 60;                 // longest time step handed to the match
   const OVER_DELAY = 500;                  // ms the end of the set stays before Space starts a new match
-  const HELP = 'Move: mouse, drag a finger, or arrow keys. Your racket stays in your half.';
+  const HELP = 'Move: mouse, finger or arrows. Lob: Space, right button or Shot. Run at the net to hit hard and volley.';
+  const SERVE_HELP = 'hold click, tap or Space for power, move to aim, let go.';
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
   let scale = 1;
   let firstServer = 'player';
 
   // state.m is the match (see src/match.js); state.speed runs time faster (only used by proof scripts); state.rand is the chance source.
-  const state = { m: Match.newMatchState(firstServer), racket: startRacket('bottom'), target: null, keys: {}, serve: false, overAt: 0, speed: 1, rand: Math.random };
+  const state = { choosing: true, started: false, level: 'advanced', pick: 1, flash: null, trail: [], lastHits: 0, m: Match.newMatchState(firstServer), racket: startRacket('bottom'), target: null, keys: {}, overAt: 0, speed: 1, rand: Math.random,
+    mouseHeld: false, fingerHeld: false, spaceHeld: false, spaceIgnore: false, rightHeld: false, shotButton: false, holdId: null, moveId: null, holdLatch: false, shotLatch: false, hold: false, shot: false };
   window.__state = state;
 
-  function resize() {
+  function fit() {
     const stage = document.getElementById('stage');
     scale = Math.max(0.1, Math.min(stage.clientWidth / VIEW_W, stage.clientHeight / VIEW_H));
     const dpr = window.devicePixelRatio || 1;
@@ -789,47 +1195,123 @@ REGISTRY['./match.js'] = module.exports;
     canvas.height = Math.round(VIEW_H * scale * dpr);
     ctx.setTransform(canvas.width / VIEW_W, 0, 0, canvas.height / VIEW_H, 0, 0);
   }
+  // The scoreboard goes beside the court only when it then does not touch the court; otherwise it stays above it.
+  function resize() {
+    document.body.classList.add('side');
+    fit();
+    const sb = document.getElementById('score').getBoundingClientRect(), cv = canvas.getBoundingClientRect();
+    if (cv.left < sb.right + 8) { document.body.classList.remove('side'); fit(); }
+  }
   window.addEventListener('resize', resize);
+  if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(resize)).observe(document.getElementById('stage'));   // also when the help line wraps and the stage changes size
 
   function toCourt(e) {
     const r = canvas.getBoundingClientRect();
     return { x: (e.clientX - r.left) / r.width * VIEW_W - MARGIN, y: (e.clientY - r.top) / r.height * VIEW_H - MARGIN };
   }
   function aim(e) { state.target = toCourt(e); }
+  const LEVELS = ['beginner', 'advanced', 'pro'];
+  const LEVEL_TEXT = { beginner: 'Beginner', advanced: 'Advanced', pro: 'Pro' };
+  // A new match at the current level (New match keeps the level; Change level opens the choice again). The first server alternates.
   function newMatch() {
     firstServer = firstServer === 'player' ? 'computer' : 'player';
-    state.m = Match.newMatchState(firstServer);
-    state.racket = startRacket('bottom'); state.target = null; state.serve = false;
+    state.m = Match.newMatchState(firstServer, state.level);
+    state.racket = startRacket('bottom'); state.target = null;
+    state.mouseHeld = state.fingerHeld = state.holdLatch = state.shotLatch = false;
+    state.trail = []; state.flash = null; state.lastHits = 0;
+  }
+  // The level choice: shown at the start and from the end box. Nothing moves until a level is chosen.
+  function openChooser() {
+    state.choosing = true; state.pick = Math.max(0, LEVELS.indexOf(state.level));
+    state.mouseHeld = state.fingerHeld = state.holdLatch = state.shotLatch = state.spaceHeld = false; state.keys = {}; state.moveId = state.holdId = null;
+  }
+  function chooseLevel(name) {
+    if (!state.choosing || LEVELS.indexOf(name) < 0) return;
+    state.level = name; state.choosing = false; state.keys = {};
+    if (state.started) newMatch(); else { state.m = Match.newMatchState(firstServer, state.level); state.racket = startRacket('bottom'); state.target = null; state.mouseHeld = state.fingerHeld = state.holdLatch = state.shotLatch = false; }
+    state.started = true;
   }
   const isButton = (e) => !!(e.target && e.target.closest && e.target.closest('button'));
-  window.addEventListener('pointermove', aim);
-  // The simple serve: a click, a tap or Space. The match only uses it when it is the player's turn to serve.
-  // Only the main button (or a finger or pen) serves: a right-click must not, and its context menu is blocked.
-  window.addEventListener('pointerdown', (e) => { aim(e); if (e.button === 0 && !isButton(e) && state.m.phase !== 'over') state.serve = true; });
+  // The mouse buttons are read from e.buttons on every pointer event, because the browser reports a second button pressed or released
+  // while another is held as a plain pointermove: bit 1 is the left button (serve: hold), bit 2 the right button (the shot button).
+  function syncMouse(e) {
+    if (e.pointerType !== 'mouse') return;
+    const left = !!(e.buttons & 1), right = !!(e.buttons & 2);
+    if (right && !state.rightHeld) state.shotLatch = true;
+    state.rightHeld = right;
+    if (left && !state.mouseHeld) { if (state.m.phase !== 'over' && !isButton(e)) { state.mouseHeld = true; state.holdLatch = true; } }
+    else if (!left) state.mouseHeld = false;
+  }
+  // A finger moves the racket; only the finger that went down on the court does (another finger may hold the Shot button).
+  window.addEventListener('pointermove', (e) => { syncMouse(e); if (e.pointerType !== 'touch' || e.pointerId === state.moveId) aim(e); });
+  // Left button, a finger or a pen: move there and hold (serve button). Right button: the shot button. The context menu is blocked.
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') document.body.classList.add('touch');
+    if (isButton(e) || state.choosing) return;
+    syncMouse(e);
+    if (e.pointerType === 'touch' && state.moveId === null) state.moveId = e.pointerId;
+    if (e.pointerType !== 'touch' || e.pointerId === state.moveId) aim(e);
+    if (e.pointerType !== 'mouse' && e.button === 0 && state.m.phase !== 'over') { state.holdLatch = true; state.fingerHeld = true; state.holdId = e.pointerId; }
+  });
+  const release = (e) => {
+    syncMouse(e);
+    if (e.pointerId === state.moveId) state.moveId = null;
+    if (e.pointerId === state.holdId) { state.fingerHeld = false; state.holdId = null; }
+  };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
   window.addEventListener('contextmenu', (e) => e.preventDefault());
-  document.getElementById('again').addEventListener('click', newMatch);
+  const shotBtn = document.getElementById('shot');
+  shotBtn.addEventListener('pointerdown', (e) => { state.shotButton = true; state.shotLatch = true; shotBtn.classList.add('down'); try { shotBtn.setPointerCapture(e.pointerId); } catch (x) { /* none */ } e.preventDefault(); });
+  const shotUp = () => { state.shotButton = false; shotBtn.classList.remove('down'); };
+  shotBtn.addEventListener('pointerup', shotUp);
+  shotBtn.addEventListener('pointercancel', shotUp);
+  shotBtn.addEventListener('lostpointercapture', shotUp);
+  document.getElementById('again').addEventListener('click', (e) => { e.currentTarget.blur(); newMatch(); });
+  document.getElementById('change').addEventListener('click', (e) => { e.currentTarget.blur(); openChooser(); });
+  for (const b of document.querySelectorAll('.lv')) b.addEventListener('click', (e) => { e.currentTarget.blur(); chooseLevel(e.currentTarget.dataset.level); });
   const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
   window.addEventListener('keydown', (e) => {
+    if (state.choosing) {
+      // the level choice: 1 2 3, or the arrows to pick and Space or Enter to confirm
+      if (e.key === '1' || e.key === '2' || e.key === '3') { chooseLevel(LEVELS[Number(e.key) - 1]); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { state.pick = (state.pick + 2) % 3; e.preventDefault(); }
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { state.pick = (state.pick + 1) % 3; e.preventDefault(); }
+      else if ((e.key === ' ' || e.code === 'Space' || e.key === 'Enter') && !e.repeat) { chooseLevel(LEVELS[state.pick]); if (e.key !== 'Enter') state.spaceIgnore = true; e.preventDefault(); }
+      else if (e.key === ' ' || e.key === 'Enter') e.preventDefault();
+      return;
+    }
+    if (state.m.phase === 'over' && (e.key === 'l' || e.key === 'L')) { openChooser(); e.preventDefault(); return; }
     if (KEYMAP[e.key]) { state.keys[KEYMAP[e.key]] = true; e.preventDefault(); }
     if (e.key === ' ' || e.code === 'Space') {
       e.preventDefault();
       // Space starts a new match only after the set has been on screen for a moment, and not from a held (repeating) key.
-      if (state.m.phase === 'over') { if (!e.repeat && performance.now() - state.overAt > OVER_DELAY) newMatch(); } else state.serve = true;
+      if (state.m.phase === 'over') { if (!e.repeat && performance.now() - state.overAt > OVER_DELAY) { newMatch(); state.spaceIgnore = true; } }
+      else if (!state.spaceIgnore) { if (!state.spaceHeld) { state.holdLatch = true; state.shotLatch = true; } state.spaceHeld = true; }
     }
   });
-  window.addEventListener('keyup', (e) => { if (KEYMAP[e.key]) { state.keys[KEYMAP[e.key]] = false; e.preventDefault(); } });
-  window.addEventListener('blur', () => { state.keys = {}; });
+  window.addEventListener('keyup', (e) => {
+    if (KEYMAP[e.key]) { state.keys[KEYMAP[e.key]] = false; e.preventDefault(); }
+    if (e.key === ' ' || e.code === 'Space') { state.spaceHeld = false; state.spaceIgnore = false; }
+  });
+  window.addEventListener('blur', () => { state.keys = {}; state.spaceHeld = state.mouseHeld = state.fingerHeld = state.rightHeld = state.shotButton = false; shotBtn.classList.remove('down'); });
 
   function update(dt) {
-    const k = state.keys;
+    if (state.choosing) return;
+    const m0 = state.m;
+    const serving = m0.phase === 'waiting' && m0.server === 'bottom';   // then the racket only slides along the baseline
+    const k = serving ? { left: state.keys.left, right: state.keys.right } : state.keys;
     if (k.left || k.right || k.up || k.down) {
       state.racket = moveRacketByKeys(state.racket, k, dt, 'bottom');
       state.target = null;
     } else if (state.target) {
-      state.racket = moveRacketToward(state.racket, state.target, dt, 'bottom');
+      const goal = serving ? { x: state.target.x, y: serveSpot('bottom') } : state.target;
+      state.racket = moveRacketToward(state.racket, goal, dt, 'bottom');
     }
-    state.m = Match.stepMatch(state.m, { racket: state.racket, serve: state.serve }, dt, state.rand);
-    state.serve = false;
+    state.hold = state.mouseHeld || state.fingerHeld || state.spaceHeld || state.holdLatch;
+    state.shot = state.spaceHeld || state.rightHeld || state.shotButton || state.shotLatch;
+    state.m = Match.stepMatch(state.m, { racket: state.racket, hold: state.hold, shot: state.shot }, dt, state.rand);
+    state.holdLatch = false; state.shotLatch = false;
     state.racket = state.m.racket;
   }
 
@@ -841,13 +1323,18 @@ REGISTRY['./match.js'] = module.exports;
     text('p-you', Scoring.pointText(s, 'player')); text('p-cpu', Scoring.pointText(s, 'computer'));
     text('points-head', s.tiebreak && s.winner === null ? 'Tiebreak' : 'Points');
     text('serve-you', s.server === 'player' ? '●' : ''); text('serve-cpu', s.server === 'computer' ? '●' : '');
+    text('level', 'Level: ' + LEVEL_TEXT[m.level || state.level]);
     let help = HELP;
-    if (m.phase === 'over') help = 'Press Space or tap New match to play again.';
-    if (m.phase === 'waiting' && m.server === 'bottom') help = (m.faults > 0 ? 'Second serve: ' : 'Your serve: ') + 'click, tap or press Space.';
+    if (m.phase === 'over') help = 'Space or New match: same level again. L or Change level: choose another.';
+    if (m.phase === 'waiting' && m.server === 'bottom') help = (m.faults > 0 ? 'Second serve: ' : 'Your serve: ') + SERVE_HELP;
+    if (state.choosing) help = 'Choose how strong the computer is.';
     text('help', help);
     const over = document.getElementById('over');
-    if (m.phase === 'over' && over.hidden) state.overAt = performance.now();
-    over.hidden = m.phase !== 'over';
+    if (m.phase === 'over' && over.hidden && !state.choosing) state.overAt = performance.now();
+    over.hidden = m.phase !== 'over' || state.choosing;
+    const choose = document.getElementById('choose');
+    choose.hidden = !state.choosing;
+    document.querySelectorAll('.lv').forEach((b, i) => b.classList.toggle('pick', i === state.pick));
     if (m.phase === 'over') {
       text('over-title', s.winner === 'player' ? 'You win the set!' : 'The computer wins the set');
       text('over-score', 'Games ' + s.games.player + ' - ' + s.games.computer);
@@ -859,25 +1346,74 @@ REGISTRY['./match.js'] = module.exports;
     ctx.beginPath(); ctx.moveTo(MARGIN + x1, MARGIN + y1); ctx.lineTo(MARGIN + x2, MARGIN + y2); ctx.stroke();
   }
 
-  // The head faces the net; the handle points away from it. Head half-height 22 + 1.5 outline <= RACKET_HALF_H.
+  // The head faces the net; the handle points away from it. Head half-height 22 + 1.5 outline <= RACKET_HALF_H; half-width 26.5 + 1.5 = RACKET_HALF_W.
   function drawRacket(r, color, dir) {
     const x = MARGIN + r.x, y = MARGIN + r.y;
     ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 5;
     ctx.beginPath(); ctx.moveTo(x, y + dir * 8); ctx.lineTo(x, y + dir * 30); ctx.stroke();
     ctx.fillStyle = color; ctx.strokeStyle = '#f4f4f4'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.ellipse(x, y, 17, RACKET_HALF_H - 2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x, y, RACKET_HALF_W - 1.5, RACKET_HALF_H - 2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   }
 
   // The shadow stays on the ground at the ball's x and y; the ball is lifted by its height. Higher: shadow smaller and paler.
+  // A lob has no ceiling: a very high ball is drawn above the top of the picture (off the canvas) while its shadow stays on the court.
+  const POWER_SIGN = REGISTRY['./shots.js'].SHOTS.POWER_SIGN;
+  const POWER_COLOR = '255, 122, 24';
+  const TRAIL_TIME = 0.22;                 // seconds of game time the trail of a power ball reaches back
   function drawBall() {
     const b = state.m.ball;
-    if (!b) return;
-    const lift = Math.min(b.z, 200) * HEIGHT_SCALE;
+    if (!b) { state.trail = []; return; }
+    const lift = b.z * HEIGHT_SCALE;
+    const sign = b.power >= POWER_SIGN && b.live;
+    // A power ball: a trail of where it was in the last TRAIL_TIME seconds of the game (so it is as long in slow motion) and an orange glow.
+    const now = state.m.clock || 0;
+    state.trail.push({ x: MARGIN + b.x, y: MARGIN + b.y - lift, c: now });
+    state.trail = state.trail.filter((p) => now - p.c <= TRAIL_TIME && now >= p.c).slice(-60);
+    if (!sign) state.trail = [];
+    for (const p of state.trail) {
+      const k = 1 - (now - p.c) / TRAIL_TIME;
+      ctx.fillStyle = 'rgba(' + POWER_COLOR + ',' + (0.6 * k).toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, BALL_R * (0.5 + 0.9 * k), 0, Math.PI * 2); ctx.fill();
+    }
     const k = 1 / (1 + b.z / 120);
     ctx.fillStyle = 'rgba(0,0,0,' + (0.18 + 0.32 * k).toFixed(3) + ')';
     ctx.beginPath(); ctx.ellipse(MARGIN + b.x, MARGIN + b.y, BALL_R * (0.8 + 0.7 * k), BALL_R * (0.8 + 0.7 * k) * 0.6, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#e8f24a'; ctx.strokeStyle = '#6b7a10'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(MARGIN + b.x, MARGIN + b.y - lift, BALL_R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    const top = MARGIN + b.y - lift;
+    if (sign) { ctx.fillStyle = 'rgba(' + POWER_COLOR + ',0.45)'; ctx.beginPath(); ctx.arc(MARGIN + b.x, top, BALL_R * 2.2, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#e8f24a'; ctx.strokeStyle = 'rgb(' + POWER_COLOR + ')'; ctx.lineWidth = 2.5; }
+    ctx.beginPath(); ctx.arc(MARGIN + b.x, top, BALL_R, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  }
+
+  // Power while it builds: speed streaks behind the racket that grow with the power; from POWER_SIGN on an orange ring and the word POWER.
+  function drawPowerSign(r, power) {
+    if (power <= 0.04) return;
+    const x = MARGIN + r.x, y = MARGIN + r.y;
+    for (let i = -2; i <= 2; i++) {
+      ctx.strokeStyle = 'rgba(' + POWER_COLOR + ',' + (0.75 + 0.25 * power).toFixed(3) + ')'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x + i * 10, y + 30); ctx.lineTo(x + i * 10, y + 30 + 14 + 46 * power * (1 - Math.abs(i) * 0.2)); ctx.stroke();
+    }
+    ctx.lineCap = 'square';
+    if (power < POWER_SIGN) return;
+    ctx.strokeStyle = 'rgb(' + POWER_COLOR + ')'; ctx.lineWidth = 4 + 3 * power;
+    ctx.beginPath(); ctx.ellipse(x, y, RACKET_HALF_W + 2 + 5 * power, RACKET_HALF_H + 2 + 5 * power, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = 'rgb(' + POWER_COLOR + ')'; ctx.font = 'bold 13px system-ui, sans-serif'; ctx.textAlign = r.x > 180 ? 'right' : 'left';
+    ctx.fillText('POWER', x + (r.x > 180 ? -RACKET_HALF_W - 14 : RACKET_HALF_W + 14), y + 4);
+  }
+  // A ring that opens around the ball where a power hit leaves the racket.
+  function drawFlash() {
+    const f = state.flash;
+    if (!f) return;
+    const age = (performance.now() - f.t) / 1000;
+    if (age > 0.35) { state.flash = null; return; }
+    ctx.strokeStyle = 'rgba(' + POWER_COLOR + ',' + (0.9 * (1 - age / 0.35)).toFixed(3) + ')'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(f.x, f.y, 12 + 70 * age, 0, Math.PI * 2); ctx.stroke();
+  }
+
+  // The power of the serve being built up: an upright bar beside the racket that fills from green to red (below the racket there is no room).
+  function drawPower(r, charge) {
+    const w = 10, h = 64, x = MARGIN + r.x + (r.x < 90 ? RACKET_HALF_W + 10 : -RACKET_HALF_W - 10 - w), y = MARGIN + r.y - h + 20;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
+    ctx.fillStyle = 'hsl(' + Math.round(120 - 120 * charge) + ', 85%, 50%)'; ctx.fillRect(x, y + h * (1 - charge), w, h * charge);
   }
 
   function draw() {
@@ -897,6 +1433,12 @@ REGISTRY['./match.js'] = module.exports;
     drawRacket(m.opponent, '#d94b4b', -1);
     drawBall();
     drawRacket(m.racket, '#3b82f6', 1);
+    if (m.phase === 'play') drawPowerSign(m.racket, m.power || 0);
+    if (m.ball && m.hits !== state.lastHits && m.ball.power >= POWER_SIGN && m.phase === 'play') state.flash = { x: MARGIN + m.ball.x, y: MARGIN + m.ball.y - m.ball.z * HEIGHT_SCALE, t: performance.now() };
+    state.lastHits = m.hits;
+    drawFlash();
+    if (state.shot) { ctx.strokeStyle = '#f2e94e'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(MARGIN + m.racket.x, MARGIN + m.racket.y, RACKET_HALF_W + 4, RACKET_HALF_H + 1, 0, 0, Math.PI * 2); ctx.stroke(); }
+    if (m.phase === 'waiting' && m.server === 'bottom' && m.holding) drawPower(m.racket, m.charge);
     ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
     if (m.message) { ctx.font = 'bold 34px system-ui, sans-serif'; ctx.fillText(m.message, VIEW_W / 2, MARGIN + NET_Y - 30); }
     if (m.message2) { ctx.font = 'bold 30px system-ui, sans-serif'; ctx.fillText(m.message2, VIEW_W / 2, MARGIN + NET_Y + 62); }
