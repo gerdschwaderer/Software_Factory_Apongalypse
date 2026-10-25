@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Apongalypse: a tennis game built by a software factory</title>
+<!-- © 2026 Gerd Schwaderer. All rights reserved. -->
+<meta name="copyright" content="© 2026 Gerd Schwaderer. All rights reserved.">
+<meta name="author" content="Gerd Schwaderer">
 <meta name="description" content="Claude Code agents built, reviewed and proved this tennis game. A human played and shipped it. Play it in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Apongalypse: a tennis game built by a software factory">
@@ -37,11 +40,20 @@
   @media (max-height: 420px) { #over-score { display: none; } #over { padding: 4px 10px; max-width: none; } #over-title { margin-bottom: 4px; } #again { font-size: 13px; padding: 3px 10px; } }
   /* Windows with room beside the court (the page decides, see layout()): the scoreboard moves to the left of the court, so the court gets the full height. */
   body.side #score { position: absolute; left: 14px; top: 12px; margin: 0; font-size: 15px; }
-  /* The Shot button (lob) is only for touch screens; it appears under the court. */
-  #shotbar { display: none; width: 100%; justify-content: center; padding: 2px 0 4px; }
-  @media (pointer: coarse) { #shotbar { display: flex; } }
+  /* On a touch screen (body.touch, set from the first line of the script) a free strip lies under the court for the steering thumb: the racket floats
+     TOUCH_OFFSET above the finger, so the lowest racket position needs a finger that far below the court. The small Shot button sits in its left
+     corner (for the other thumb), the help text lies on the court and fades, and the line under the court is gone. */
+  #shotbar { display: none; width: 100%; flex: none; height: 78px; box-sizing: border-box; align-items: center; justify-content: flex-start; padding: 0 10px; position: relative; }
   body.touch #shotbar { display: flex; }
-  #shot { font-size: 18px; font-weight: 700; min-width: 140px; height: 48px; border-radius: 24px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; touch-action: none; user-select: none; -webkit-user-select: none; }
+  body.touch #help { display: none; }
+  #strip-hint { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 11px; color: #5d7385; pointer-events: none; }
+  #shot { font-size: 14px; font-weight: 700; width: 64px; height: 38px; padding: 0; border-radius: 19px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; touch-action: none; user-select: none; -webkit-user-select: none; position: relative; z-index: 1; }
+  #helpc { display: none; position: absolute; left: 50%; top: 54%; transform: translateX(-50%); width: 84%; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; background: rgba(16, 24, 32, 0.82);
+    color: #e8eef2; font-size: 14px; line-height: 1.3; text-align: center; pointer-events: none; z-index: 4; opacity: 1; transition: opacity 0.9s ease, visibility 0s linear 0.9s; }
+  body.touch #helpc { display: block; }
+  @media (max-height: 420px) { #helpc { top: 20%; width: 130%; font-size: 12px; padding: 4px 8px; } }   /* a landscape phone: the court is narrow, so the text may reach over the grass beside it */
+  body.touch #helpc[hidden] { display: none; }
+  #helpc.gone { opacity: 0; visibility: hidden; }
   #shot.down { background: #f2e94e; color: #101820; }
   #score td.level { text-align: center; color: #f2e94e; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 10px 0; }
   /* The level choice sits in the middle of the window (on a small landscape phone the court is narrower than the box). */
@@ -71,9 +83,10 @@
     <tr><td class="name"><span class="serve" id="serve-cpu"></span>Computer</td><td id="g-cpu">0</td><td class="pts" id="p-cpu">0</td></tr>
   </table>
   <div id="stage"><div id="court"><canvas id="c"></canvas>
+    <div id="helpc" hidden>Steer with your thumb in the strip below the court: the racket floats above it. To serve, hold the screen, slide to aim, let go. Shot button: lob.</div>
     <div id="over" hidden><div id="over-title"></div><div id="over-score"></div><div id="over-buttons"><button id="again" type="button">New match</button><button id="change" type="button">Change level</button></div></div>
     <div id="choose"><div id="choose-title">Choose a level</div><div id="levels"><button class="lv" type="button" data-level="beginner">Beginner</button><button class="lv" type="button" data-level="advanced">Advanced</button><button class="lv" type="button" data-level="pro">Pro</button></div><div id="choose-hint">Click or tap one, or press 1, 2, 3 (or the arrows) and Space</div></div></div></div>
-  <div id="shotbar"><button id="shot" type="button">Shot</button></div>
+  <div id="shotbar"><button id="shot" type="button">Shot</button><span id="strip-hint">steer here</span></div>
   <div id="help"></div>
 </div>
 <script>
@@ -1175,6 +1188,8 @@ REGISTRY['./match.js'] = module.exports;
   const OVER_DELAY = 500;                  // ms the end of the set stays before Space starts a new match
   const HELP = 'Move: mouse, finger or arrows. Lob: Space, right button or Shot. Run at the net to hit hard and volley.';
   const SERVE_HELP = 'hold click, tap or Space for power, move to aim, let go.';
+  const TOUCH_OFFSET = 72;                 // css px: the racket follows the point this far above the finger (see aim); a thumb's tip lies below the touch point
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) document.body.classList.add('touch');
   const canvas = document.getElementById('c');
   const ctx = canvas.getContext('2d');
   let scale = 1;
@@ -1182,7 +1197,7 @@ REGISTRY['./match.js'] = module.exports;
 
   // state.m is the match (see src/match.js); state.speed runs time faster (only used by proof scripts); state.rand is the chance source.
   const state = { choosing: true, started: false, level: 'advanced', pick: 1, flash: null, trail: [], lastHits: 0, m: Match.newMatchState(firstServer), racket: startRacket('bottom'), target: null, keys: {}, overAt: 0, speed: 1, rand: Math.random,
-    mouseHeld: false, fingerHeld: false, spaceHeld: false, spaceIgnore: false, rightHeld: false, shotButton: false, holdId: null, moveId: null, holdLatch: false, shotLatch: false, hold: false, shot: false };
+    mouseHeld: false, fingerHeld: false, spaceHeld: false, spaceIgnore: false, rightHeld: false, shotButton: false, holdId: null, moveId: null, holdLatch: false, shotLatch: false, hold: false, shot: false, helpDone: false };
   window.__state = state;
 
   function fit() {
@@ -1209,7 +1224,30 @@ REGISTRY['./match.js'] = module.exports;
     const r = canvas.getBoundingClientRect();
     return { x: (e.clientX - r.left) / r.width * VIEW_W - MARGIN, y: (e.clientY - r.top) / r.height * VIEW_H - MARGIN };
   }
-  function aim(e) { state.target = toCourt(e); }
+  // A finger steers a point TOUCH_OFFSET above itself, so it never covers the racket; the mouse and the pen steer the point under the pointer.
+  // Every finger position is one court position (the racket limits clamp it), and the strip under the court is TOUCH_OFFSET tall, so the lowest racket position has a finger on screen.
+  // A racket that chases a moving target runs behind it by (speed of the target) / EASE_GAIN, so a finger moving toward the net would catch up with
+  // it. While the finger moves up, the target is therefore pushed up by that lag (the "lead", at most LEAD_MAX px), so the racket stays about
+  // TOUCH_OFFSET above the finger as long as the finger is not faster than the racket's top speed. The lead fades out when the finger slows down.
+  const LEAD_MAX = 110;
+  const touchTarget = (f, lead) => toCourt({ clientX: f.x, clientY: f.y - TOUCH_OFFSET - lead });
+  function aim(e) {
+    if (e.pointerType !== 'touch') { state.target = toCourt(e); return; }
+    const now = performance.now(), f = state.finger;
+    if (f && f.id === e.pointerId && now > f.t) {
+      const v = (f.y - e.clientY) / ((now - f.t) / 1000);   // px per second, up is positive
+      state.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: (f.v || 0) * 0.5 + v * 0.5 };
+    } else if (!f || f.id !== e.pointerId) state.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: 0 };
+    else state.finger = { ...f, x: e.clientX, y: e.clientY };
+    state.target = touchTarget(state.finger, Math.max(0, Math.min(LEAD_MAX, state.finger.v / EASE_GAIN)));
+  }
+  // Every frame while a finger steers: the lead follows the finger's speed, which falls to 0 when no move event comes.
+  function steerLead(dt) {
+    const f = state.finger;
+    if (!f || state.moveId !== f.id) return;
+    if (performance.now() - f.t > 40) f.v *= Math.exp(-dt * 12);
+    state.target = touchTarget(f, Math.max(0, Math.min(LEAD_MAX, f.v / EASE_GAIN)));
+  }
   const LEVELS = ['beginner', 'advanced', 'pro'];
   const LEVEL_TEXT = { beginner: 'Beginner', advanced: 'Advanced', pro: 'Pro' };
   // A new match at the current level (New match keeps the level; Change level opens the choice again). The first server alternates.
@@ -1255,7 +1293,7 @@ REGISTRY['./match.js'] = module.exports;
   });
   const release = (e) => {
     syncMouse(e);
-    if (e.pointerId === state.moveId) state.moveId = null;
+    if (e.pointerId === state.moveId) { state.moveId = null; if (state.finger) { state.target = touchTarget(state.finger, 0); state.finger = null; } }
     if (e.pointerId === state.holdId) { state.fingerHeld = false; state.holdId = null; }
   };
   window.addEventListener('pointerup', release);
@@ -1298,6 +1336,7 @@ REGISTRY['./match.js'] = module.exports;
 
   function update(dt) {
     if (state.choosing) return;
+    steerLead(dt);
     const m0 = state.m;
     const serving = m0.phase === 'waiting' && m0.server === 'bottom';   // then the racket only slides along the baseline
     const k = serving ? { left: state.keys.left, right: state.keys.right } : state.keys;
@@ -1329,6 +1368,11 @@ REGISTRY['./match.js'] = module.exports;
     if (m.phase === 'waiting' && m.server === 'bottom') help = (m.faults > 0 ? 'Second serve: ' : 'Your serve: ') + SERVE_HELP;
     if (state.choosing) help = 'Choose how strong the computer is.';
     text('help', help);
+    // the help on the court (touch only): shown from the first moment of play on, fades once the first serve is struck and does not come back
+    if (m.phase === 'play' && !state.choosing) state.helpDone = true;
+    const hc = document.getElementById('helpc');
+    hc.hidden = state.choosing && !state.helpDone;
+    hc.classList.toggle('gone', !!state.helpDone);
     const over = document.getElementById('over');
     if (m.phase === 'over' && over.hidden && !state.choosing) state.overAt = performance.now();
     over.hidden = m.phase !== 'over' || state.choosing;
@@ -1459,5 +1503,6 @@ REGISTRY['./match.js'] = module.exports;
   requestAnimationFrame(frame);
 })();
 </script>
+<style>#help::after,#strip-hint::after{content:"  ·  © 2026 Gerd Schwaderer";opacity:.6;white-space:nowrap}</style>
 </body>
 </html>
