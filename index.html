@@ -47,17 +47,58 @@
   body.touch #shotbar { display: flex; }
   body.touch #help { display: none; }
   #strip-hint { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 11px; color: #5d7385; pointer-events: none; }
-  #shot { font-size: 14px; font-weight: 700; width: 64px; height: 38px; padding: 0; border-radius: 19px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; touch-action: none; user-select: none; -webkit-user-select: none; position: relative; z-index: 1; }
+  #shot, #shot2 { font-size: 14px; font-weight: 700; width: 64px; height: 38px; padding: 0; border-radius: 19px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; touch-action: none; user-select: none; -webkit-user-select: none; position: relative; z-index: 1; }
   #helpc { display: none; position: absolute; left: 50%; top: 54%; transform: translateX(-50%); width: 84%; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; background: rgba(16, 24, 32, 0.82);
     color: #e8eef2; font-size: 14px; line-height: 1.3; text-align: center; pointer-events: none; z-index: 4; opacity: 1; transition: opacity 0.9s ease, visibility 0s linear 0.9s; }
   body.touch #helpc { display: block; }
   @media (max-height: 420px) { #helpc { top: 20%; width: 130%; font-size: 12px; padding: 4px 8px; } }   /* a landscape phone: the court is narrow, so the text may reach over the grass beside it */
   body.touch #helpc[hidden] { display: none; }
   #helpc.gone { opacity: 0; visibility: hidden; }
-  #shot.down { background: #f2e94e; color: #101820; }
+  #shot.down, #shot2.down { background: #f2e94e; color: #101820; }
+  /* Two players on one phone (body.two, only on a touch screen): the court gets the whole screen. The top player's steering strip lies above the court, with their
+     button in its far corner turned toward them; everything else (title, level choice, scoreboard, help) is hidden. The scores and messages are drawn on the court. */
+  #topbar { display: none; width: 100%; flex: none; height: 78px; box-sizing: border-box; align-items: center; justify-content: flex-end; padding: 0 10px; position: relative; }
+  body.two #topbar { display: flex; }
+  #shot2 { transform: rotate(180deg); }
+  #strip-hint2 { position: absolute; left: 0; right: 0; top: 6px; text-align: center; font-size: 11px; color: #5d7385; pointer-events: none; transform: rotate(180deg); }
+  body.two #score, body.two #help, body.two #helpc, body.two #over, body.two #choose { display: none !important; }
+  #two { display: none; font-size: 16px; font-weight: 700; min-width: 84px; padding: 10px 8px; border-radius: 8px; border: 2px solid #f2e94e; background: #26384a; color: #f2e94e; cursor: pointer; touch-action: none; }
+  body.touch #two { display: inline-block; }
+  body.touch .lv, body.touch #two { min-width: 0; font-size: 14px; padding: 10px 6px; }   /* on a phone the 2 players choice fits in the row of the levels where the screen is wide enough */
+  body.touch #levels { gap: 6px; }
+  #duo { display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 7; flex-direction: column; pointer-events: none; touch-action: none; }
+  #duo .gap { flex: none; height: 30px; }   /* the middle of the screen is the net: the author's name on it stays visible */
+  body.two #duo.on { display: flex; }
+  .duo-half { background: rgba(16, 24, 32, 0.94); pointer-events: auto; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 0 10px; min-height: 0; }
+  .duo-half.flip { transform: rotate(180deg); }
+  .duo-half + .duo-half { border-top: 2px solid #f2e94e; }
+  .duo-title { font-size: 20px; font-weight: 700; }
+  .duo-levels { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .duo-wait { font-size: 13px; color: #9fb3c2; min-height: 1.3em; }
+  .dlv { font-size: 16px; font-weight: 700; min-width: 84px; padding: 10px 8px; border-radius: 8px; border: 2px solid #3b82f6; background: #26384a; color: #e8eef2; cursor: pointer; touch-action: none; }
+  .dlv.pick { background: #3b82f6; color: #fff; border-color: #f2e94e; }
+  #turn { display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 15; flex-direction: column; pointer-events: none; font-size: 28px; font-weight: 700; line-height: 1.25; text-align: center; }
+  #turn .shield { flex: 1; background: rgba(16, 24, 32, 0.97); pointer-events: auto; touch-action: none; display: flex; align-items: center; justify-content: center; padding: 0 24px; }
+  #turn .gap { flex: none; height: 30px; }   /* the middle of the screen is the net: the author's name on it stays visible and nothing lies on it */
+  body.two #turn.on { display: flex; }
+  #closemark { display: none; position: fixed; left: 6px; top: 6px; width: 40px; height: 40px; box-sizing: border-box; border-radius: 50%; border: 2px solid #e8eef2; background: rgba(16, 24, 32, 0.5);
+    color: #e8eef2; opacity: 0.5; font-size: 22px; line-height: 1; padding: 0; z-index: 20; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; }
+  body.two #closemark { display: block; }
+  #closemark .fill { position: absolute; left: 0; bottom: 0; width: 100%; height: 0; background: rgba(242, 233, 78, 0.7); pointer-events: none; }
+  #closemark .x { position: relative; }
+  .ng { display: none; position: absolute; left: 50%; z-index: 5; text-align: center; background: rgba(16, 24, 32, 0.78); border: 2px solid #f2e94e;
+    border-radius: 12px; padding: 6px 14px 8px; width: max-content; max-width: 92%; box-sizing: border-box; line-height: 1.2; }
+  /* each box hangs on its own baseline, so it stays below the message lines (drawn up to 100 units from the net) on every screen */
+  #ng-bot { bottom: 7%; transform: translateX(-50%); }
+  #ng-top { top: 7%; transform: translateX(-50%) rotate(180deg); }
+  body.two .ng.on { display: block; }
+  .ng-title { font-size: 20px; font-weight: 700; }
+  .ng-score { font-size: 14px; color: #9fb3c2; margin: 2px 0 6px; }
+  .ng button { font-size: 16px; padding: 6px 14px; border-radius: 8px; border: 0; background: #3b82f6; color: #fff; cursor: pointer; white-space: nowrap; touch-action: none; }
+  @media (max-height: 520px) { .ng { padding: 2px 8px 3px; } .ng-title { font-size: 12px; } .ng-score { display: none; } .ng button { font-size: 13px; padding: 5px 10px; } }
   #score td.level { text-align: center; color: #f2e94e; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 10px 0; }
   /* The level choice sits in the middle of the window (on a small landscape phone the court is narrower than the box). */
-  #choose { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(16, 24, 32, 0.95); border: 2px solid #f2e94e;
+  #choose { position: fixed; left: 50%; top: 30%; transform: translate(-50%, -50%);   /* above the net: the author's name on the net band stays visible */ background: rgba(16, 24, 32, 0.95); border: 2px solid #f2e94e;
     border-radius: 12px; padding: 14px 16px; text-align: center; z-index: 6; width: max-content; max-width: 96vw; box-sizing: border-box; line-height: 1.25; }
   #choose[hidden] { display: none; }
   #choose-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
@@ -82,13 +123,19 @@
     <tr><td class="name"><span class="serve" id="serve-you"></span>You</td><td id="g-you">0</td><td class="pts" id="p-you">0</td></tr>
     <tr><td class="name"><span class="serve" id="serve-cpu"></span>Computer</td><td id="g-cpu">0</td><td class="pts" id="p-cpu">0</td></tr>
   </table>
+  <div id="topbar"><button id="shot2" class="act" type="button">Lob</button><span id="strip-hint2">steer here</span></div>
   <div id="stage"><div id="court"><canvas id="c"></canvas>
-    <div id="helpc" hidden>Steer with your thumb in the strip below the court: the racket floats above it. To serve, hold the screen, slide to aim, let go. Shot button: lob.</div>
+    <div id="helpc" hidden>Steer with your thumb in the strip below the court: the racket floats above it. To serve, hold the Serve button, slide to aim, let go. In a rally it is Lob.</div>
+    <div class="ng" id="ng-top"><div class="ng-title"></div><div class="ng-score"></div><button type="button">New game</button></div>
+    <div class="ng" id="ng-bot"><div class="ng-title"></div><div class="ng-score"></div><button type="button">New game</button></div>
     <div id="over" hidden><div id="over-title"></div><div id="over-score"></div><div id="over-buttons"><button id="again" type="button">New match</button><button id="change" type="button">Change level</button></div></div>
-    <div id="choose"><div id="choose-title">Choose a level</div><div id="levels"><button class="lv" type="button" data-level="beginner">Beginner</button><button class="lv" type="button" data-level="advanced">Advanced</button><button class="lv" type="button" data-level="pro">Pro</button></div><div id="choose-hint">Click or tap one, or press 1, 2, 3 (or the arrows) and Space</div></div></div></div>
-  <div id="shotbar"><button id="shot" type="button">Shot</button><span id="strip-hint">steer here</span></div>
+    <div id="choose"><div id="choose-title">Choose a level</div><div id="levels"><button class="lv" type="button" data-level="beginner">Beginner</button><button class="lv" type="button" data-level="advanced">Advanced</button><button class="lv" type="button" data-level="pro">Pro</button><button id="two" type="button">2 players</button></div><div id="choose-hint">Click or tap one, or press 1, 2, 3 (or the arrows) and Space</div></div></div></div>
+  <div id="shotbar"><button id="shot" class="act" type="button">Lob</button><span id="strip-hint">steer here</span></div>
   <div id="help"></div>
 </div>
+<div id="duo"><div class="duo-half flip" data-side="top"><div class="duo-title">Choose your level</div><div class="duo-levels"><button class="dlv" type="button" data-side="top" data-level="beginner">Beginner</button><button class="dlv" type="button" data-side="top" data-level="advanced">Advanced</button><button class="dlv" type="button" data-side="top" data-level="pro">Pro</button></div><div class="duo-wait"></div></div><div class="gap"></div><div class="duo-half" data-side="bottom"><div class="duo-title">Choose your level</div><div class="duo-levels"><button class="dlv" type="button" data-side="bottom" data-level="beginner">Beginner</button><button class="dlv" type="button" data-side="bottom" data-level="advanced">Advanced</button><button class="dlv" type="button" data-side="bottom" data-level="pro">Pro</button></div><div class="duo-wait"></div></div></div>
+<div id="turn"><div class="shield">Turn the phone upright to play two players</div><div class="gap"></div><div class="shield"></div></div>
+<button id="closemark" type="button" aria-label="Hold for one second to end the match"><span class="fill"></span><span class="x">&times;</span></button>
 <script>
 /* The modules are pasted in below. Each one fills module.exports; the page keeps them in REGISTRY so that
    a module can ask for another with require('./physics.js'). Physics and scoring also stay global names. */
@@ -111,7 +158,7 @@ const LUNGE_DISTANCE = 60;    // a lunging computer racket aims this far past th
 const RACKET_HALF_H = 24;      // drawn racket head half-height incl. outline; the page uses it too
 const NET_GAP = RACKET_HALF_H + 4; // racket centre stays this far from the net, so the head and the net band never overlap
 const BEHIND_BASELINE = 30;   // how far behind the baseline a racket may stand
-const SIDE_MARGIN = 20;       // how far outside a sideline a racket may stand
+const SIDE_MARGIN = 40;       // how far outside a sideline a racket may stand
 const START_INSET = 40;       // start distance from own baseline
 
 // Ball and shot constants (court units, seconds). Tune the feel here.
@@ -126,7 +173,8 @@ const NET_BOUNCE = 0.2;       // share of speed kept when the ball hits the net
 const FLAT_SPEED = 520;       // nominal forward speed of a flat shot, units/s
 const MIN_SHOT_VZ = 60;       // a shot always leaves the racket at least this fast upward
 const RETURN_DEPTH = 100;     // a flat shot lands this far in front of the opponent baseline
-const SHOT_SIDE_INSET = 24;   // a shot aims at least this far inside a sideline
+const AIM_LIMIT = 300;        // a shot is aimed at most this far outside the court (only keeps bad numbers from flinging the ball; the aim is never corrected to stay in)
+const BACK_DISTANCE = 45;     // a computer racket that plays a short ball aims this far past the ball away from the net, so it runs back through the ball
 const LOB_SPEED = 300;        // forward speed of a lob, units/s (a flat shot flies at FLAT_SPEED)
 const LOB_DEPTH = 40;         // a lob lands this far in front of the opponent baseline
 const LOB_MIN_TIME = 1.2;     // a lob stays in the air at least this long (s), so even one hit at the net climbs above a volley at the net
@@ -146,7 +194,7 @@ const CORD_BAND = 4;          // a ball crossing the net less than this above it
 const SERVE_HEIGHT = 50;      // height at which a serve is hit
 const SERVE_BEHIND = 10;      // a serve starts this far behind the baseline
 const SERVE_OFFSET = 60;      // ...and this far from the centre mark
-const SERVE_BOX_INSET = 15;   // a serve is aimed at least this far inside the lines of its box
+const SERVE_BOX_INSET = 45;   // a serve is aimed at least this far inside the lines of its box
 const SERVE_DEPTH_MIN = 90;   // landing distance from the net at power 0
 const SERVE_DEPTH_MAX = 140;  // ...and at power 1 (the service line is 151)
 const SERVE_SPEED_MIN = 450;  // forward speed at power 0, units/s
@@ -303,6 +351,9 @@ function judge(event) {
   return inHalf(event.x, event.y, other(event.hitter)) ? null : { loser: event.hitter, reason: 'out' };
 }
 
+// Seconds a ball hit from height z with upward speed vz stays in the air (at least 0.05).
+function flightTime(z, vz) { return Math.max(0.05, (vz + Math.sqrt(vz * vz + 2 * GRAVITY * z)) / GRAVITY); }
+
 // A shot by `side` that lands at x = aimX and `opts.depth` in front of the opponent baseline (default RETURN_DEPTH;
 // negative lands beyond it, out). It passes the net at least NET_CLEARANCE above its top, or, with `opts.clearance`,
 // that far above it (negative: below the top, so it hits the net). Returns the new ball.
@@ -311,7 +362,8 @@ function hitBall(ball, side, aimX, opts) {
   const o = opts && typeof opts === 'object' ? opts : {};
   const lob = o.lob === true;
   const power = clamp(finite(o.power, 0), 0, 1);   // how hard the racket was moving; the ball carries it so the page can show a power hit
-  const tx = clamp(finite(aimX, COURT_W / 2), SHOT_SIDE_INSET, COURT_W - SHOT_SIDE_INSET) + clamp(finite(o.lateral, 0), -200, 200);
+  // The aim is not corrected to stay in the court: a ball aimed over a sideline lands over it (the aim help is in shots.js).
+  const tx = clamp(finite(aimX, COURT_W / 2), -AIM_LIMIT, COURT_W + AIM_LIMIT) + clamp(finite(o.lateral, 0), -200, 200);
   const depth = clamp(finite(o.depth, lob ? LOB_DEPTH : RETURN_DEPTH), -150, 400);
   const arc = clamp(finite(o.arc, 0), -300, 300);
   const speed = FLAT_SPEED * clamp(finite(o.speed, 1), 0.3, 3);
@@ -337,7 +389,7 @@ function hitBall(ball, side, aimX, opts) {
     // a lob: slow and high; it is in the air for dist / LOB_SPEED seconds and lands at the aim
     const t = clamp(dist / LOB_SPEED, LOB_MIN_TIME, 3);
     const vzl = (0.5 * GRAVITY * t * t - b.z) / t + arc;
-    return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz: vzl, hitter: side, bounces: 0, live: true, power });
+    return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / flightTime(b.z, vzl), vy: dir * dist / t, vz: vzl, hitter: side, bounces: 0, live: true, power });
   }
   const t0 = dist / speed;
   let vz = Math.max(MIN_SHOT_VZ - SMASH_DROP * Math.max(0, b.z - HIT_HEIGHT), (0.5 * GRAVITY * t0 * t0 - b.z) / t0);
@@ -348,7 +400,9 @@ function hitBall(ball, side, aimX, opts) {
     if (b.z + vz * tn - 0.5 * GRAVITY * tn * tn >= NET_HEIGHT + NET_CLEARANCE) break;
     vz += 10;
   }
-  return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / t, vy: dir * dist / t, vz: vz + arc, hitter: side, bounces: 0, live: true, power });
+  // The arc error makes the ball land longer or shorter along the court, never sideways: the sideways speed follows the real flight time, so the ball
+  // lands at the aim whatever the arc error is and chance cannot decide between in and out at a sideline.
+  return makeBall({ x: b.x, y: b.y, z: b.z, vx: (tx - b.x) / flightTime(b.z, vz + arc), vy: dir * dist / t, vz: vz + arc, hitter: side, bounces: 0, live: true, power });
 }
 
 // The opening shot of a rally: hit from the baseline of `side` at x, aimed at aimX.
@@ -422,6 +476,7 @@ function computerRacketStep(racket, ball, dt, side, offset, plan) {
   const home = startRacket(side);
   let target = home;
   const shift = plan ? finite(plan.shift, 0) : 0, lunge = plan ? clamp(finite(plan.lunge, 0), 0, 1) : 0;
+  const back = plan && lunge === 0 ? clamp(finite(plan.back, 0), 0, 1) : 0;   // a short ball: it runs away from the net through the ball (a lunge wins)
   const net = side === 'top' ? 1 : -1;
   const wantsNet = !!(plan && plan.net === true);
   const standY = NET_Y - net * NET_STAND_DIST;
@@ -436,10 +491,10 @@ function computerRacketStep(racket, ball, dt, side, offset, plan) {
     if (wantsNet && !after && reads) {
       // at the net it waits for the ball there and runs along the stand to where the ball crosses it
       const lead = (standY - b.y) / b.vy;
-      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: standY + net * lunge * LUNGE_DISTANCE };
+      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: standY + net * (lunge * LUNGE_DISTANCE - back * BACK_DISTANCE) };
     } else {
       const lead = after ? 1 / EASE_GAIN : (b.vz + Math.sqrt(b.vz * b.vz + 2 * GRAVITY * b.z)) / GRAVITY;
-      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: after ? b.y + b.vy * lead + net * lunge * LUNGE_DISTANCE : home.y };
+      target = { x: b.x + b.vx * lead + finite(offset, 0) + shift, y: after ? b.y + b.vy * lead + net * (lunge * LUNGE_DISTANCE - back * BACK_DISTANCE) : home.y };
     }
   }
   const here = clampRacket(racket, side);
@@ -525,7 +580,7 @@ function serveBall(side, serveSide, aimX, power, rand, originX) {
 if (typeof module !== 'undefined') {
   module.exports = { landingOf, goesOut, LOB_MIN_TIME, SMASH_DROP, VOLLEY_HEIGHT, NET_STAND_DIST, heightAt, COMPUTER_SETTLE_GAIN, EASE_GAIN, RACKET_HALF_W, COMPUTER_NET_SPEED, LUNGE_DISTANCE, LOB_SPEED, LOB_DEPTH, serveSpot, serveHalf, serveAimX, serveRacketX, clampServeRacket, canHit, COURT_W, COURT_L, NET_Y, RACKET_SPEED, RACKET_HALF_H, NET_GAP, BEHIND_BASELINE, SIDE_MARGIN, START_INSET,
     GRAVITY, NET_HEIGHT, NET_CLEARANCE, SERVICE_LEN, RESTITUTION, GROUND_DRAG, MIN_BOUNCE_VZ, NET_BOUNCE, FLAT_SPEED, MIN_SHOT_VZ, RETURN_DEPTH,
-    SHOT_SIDE_INSET, HIT_REACH, HIT_HEIGHT, FEED_HEIGHT, MAX_DT, SUBSTEP, MAX_SPEED, POS_LIMIT,
+    AIM_LIMIT, BACK_DISTANCE, HIT_REACH, HIT_HEIGHT, FEED_HEIGHT, MAX_DT, SUBSTEP, MAX_SPEED, POS_LIMIT,
     CORD_BAND, SERVE_HEIGHT, SERVE_BEHIND, SERVE_OFFSET, SERVE_BOX_INSET, SERVE_DEPTH_MIN, SERVE_DEPTH_MAX, SERVE_SPEED_MIN, SERVE_SPEED_MAX, SERVE_ERR_BASE, SERVE_ERR_POWER, SERVE_ARC_ERR,
     serveOrigin, serveBox, serveBall,
     inCourt, inHalf, inServiceBox, makeBall, stepBall, judge, rallyMessage, hitBall, feedBall, tryHit, computerRacketStep, startRacket, clampRacket, moveRacketToward, moveRacketByKeys };
@@ -688,11 +743,18 @@ const SHOTS = {
   POWER_FULL: 600,        // moving toward the net at this speed or faster is full power
   POWER_SPEED_GAIN: 0.9,  // full power flies (1 + this) times as fast as a normal return
   POWER_DEPTH: 60,        // full power lands this much nearer the baseline than a normal return
-  LATERAL_ERR: 25,        // at full power the landing spot is off sideways by up to this much, either way
   POWER_WINDOW: 0.15,     // power counts how the racket moved toward the net over this many seconds before the hit, not at one instant
+  SHORT_FREE: 100,        // moving away from the net slower than this (units/s) is "standing still": a normal return
+  SHORT_FULL: 450,        // moving away from the net at this speed or faster plays a full short ball
+  SHORT_DIST: 40,         // a full short ball is meant to land this far behind the net (a normal return lands 180 behind it)
+  SHORT_ERR: 30,          // ...and lands this much nearer or farther, either way (even chance): the touch shot is easy to misjudge
+  SHORT_NET_LIMIT: 16,    // a short ball meant to land nearer the net than this does not clear it: it lands in the net
+  SHORT_SPEED: 0.5,       // a full short ball flies this share as fast as a normal return
+  AIM_HELP: { beginner: 50, advanced: 20, pro: 0 },   // at most this many units a ball that would land out over a sideline is pulled back toward it, by level (task 10)
+  HELP_ZONE: 100,         // the aim help works within this distance of the sideline, growing from nothing at the edge of the zone to all of it on the sideline
+  LINE_MARGIN: 1,         // a helped ball is brought to this far inside the line (it touches the line)
   POWER_SIGN: 0.35,       // from this power on the page shows a power hit (glow while it builds, trail on the ball)
   ARC_ERR: 70,            // at full power the vertical speed is off by up to this much (units/s): the ball lands long or short, or clips the net
-  LOB_LATERAL: 8,         // a lob lands off sideways by up to this much
   LOB_DEPTH_ERR: 67,      // a lob lands this much nearer or farther than it was meant to, up to this far either way (even chance): LOB_DEPTH 40 and 67 make about one lob in five land long
   LOB_SPEED: SH_PH.LOB_SPEED,   // (set in physics.js) forward speed of a lob
   LOB_DEPTH: SH_PH.LOB_DEPTH,   // (set in physics.js) a lob lands this far in front of the baseline
@@ -734,33 +796,63 @@ function contactOffset(ball, racket) {
   return shClamp((ball.x - racket.x) / SH_PH.RACKET_HALF_W, -1, 1);
 }
 
+// Short ball 0..1 from the racket's speed along the court (units/s, positive is toward y 560) for the racket of `side`: only moving away from the net counts.
+function swingShort(vy, side) {
+  const v = shNum(vy, 0) * (side === 'top' ? -1 : 1);
+  return shClamp((v - SHOTS.SHORT_FREE) / (SHOTS.SHORT_FULL - SHOTS.SHORT_FREE), 0, 1);
+}
+
+// The aim help: a ball aimed (aimX) beyond a sideline lands that much nearer to it, as far as the line (LINE_MARGIN inside it), by a fixed amount that depends only on
+// where the racket stands and the level: AIM_HELP[level] at most, all of it on the sideline and less the farther from it, nothing beyond HELP_ZONE. Never to nothing
+// (the amount is finite, so a really wide hit still goes out), never by chance, never moves an aim that is in the court. An unknown or missing level is no help.
+function aimHelp(aimX, racketX, level) {
+  const max = typeof level === 'string' && Object.prototype.hasOwnProperty.call(SHOTS.AIM_HELP, level) ? SHOTS.AIM_HELP[level] : 0;
+  if (!Number.isFinite(aimX) || !Number.isFinite(racketX) || !(max > 0)) return aimX;
+  const right = aimX > SH_PH.COURT_W - SHOTS.LINE_MARGIN, left = aimX < SHOTS.LINE_MARGIN;
+  if (!right && !left) return aimX;
+  const dist = Math.max(0, right ? SH_PH.COURT_W - racketX : racketX);
+  const help = max * shClamp(1 - dist / SHOTS.HELP_ZONE, 0, 1);
+  return right ? Math.max(SH_PH.COURT_W - SHOTS.LINE_MARGIN, aimX - help) : Math.min(SHOTS.LINE_MARGIN, aimX + help);
+}
+
 // Power 0..1 from the racket's speed along the court (units/s, positive is toward y 560) for the racket of `side`: only moving toward the net counts.
 function swingPower(vy, side) {
   const v = shNum(vy, 0) * (side === 'top' ? 1 : -1);
   return shClamp((v - SHOTS.POWER_FREE) / (SHOTS.POWER_FULL - SHOTS.POWER_FREE), 0, 1);
 }
 
-// The racket of `side` returns the ball when it reaches it (same conditions as physics.tryHit). swing is { vy, lob, volley }: the racket's speed
+// The racket of `side` returns the ball when it reaches it (same conditions as physics.tryHit). swing is { vy, lob, volley, level, letGo }: the racket's speed
 // along the court and whether the shot button is held, and whether a ball that has not bounced may be hit (volley; never for a serve),
-// and letGo: this racket judges a ball in the air and lets it go when it will land out (a person does not play a ball that is going out). Returns the new ball, or null when there is no hit. Always draws two numbers from rand.
+// and level: the hitter's level for the aim help (none given: no help; the match gives the player the level of the match; the computer gets none, its errors are its own); and letGo: this racket judges a ball in the air and lets it go when it will land out (a person does not play a ball that is going out). Returns the new ball, or null when there is no hit. Always draws two numbers from rand.
 function contactShot(ball, racket, side, swing, rand) {
   const sw = swing && typeof swing === 'object' ? swing : {};
   if (!SH_PH.canHit(ball, racket, side, sw.volley === true)) return null;
   if (sw.letGo === true && SH_PH.goesOut(ball)) return null;   // only a ball that has not bounced can be going out
+  // r1 is the depth error of a short ball, r2 the arc error of a power hit; both are always drawn so the dice do not depend on the shot.
   const r1 = shDraw(rand), r2 = shDraw(rand);
-  const aimX = ball.x + contactOffset(ball, racket) * SHOTS.AIM_RANGE;
+  const aimX = aimHelp(ball.x + contactOffset(ball, racket) * SHOTS.AIM_RANGE, racket.x, sw.level);
   if (sw.lob === true) {
-    return SH_PH.hitBall(ball, side, aimX, { lob: true, lateral: (r1 * 2 - 1) * SHOTS.LOB_LATERAL, depth: SHOTS.LOB_DEPTH + (r2 * 2 - 1) * SHOTS.LOB_DEPTH_ERR });
+    // the lob button wins over moving away or toward the net: a held lob stays a lob
+    return SH_PH.hitBall(ball, side, aimX, { lob: true, depth: SHOTS.LOB_DEPTH + (r2 * 2 - 1) * SHOTS.LOB_DEPTH_ERR });
   }
-  const p = swingPower(sw.vy, side);
+  if (sw.netError === true) return SH_PH.hitBall(ball, side, aimX, { clearance: -8 });   // a mistake: the ball does not clear the net
+  const p = swingPower(sw.vy, side), sh = swingShort(sw.vy, side);
+  if (sh > 0) {
+    // a short ball: soft, and meant to land SHORT_DIST behind the net, nearer or farther by the touch error; meant too near, it does not clear the net
+    const near = SH_PH.NET_Y - SH_PH.RETURN_DEPTH;   // a normal return lands this far behind the net
+    const dist = near + (SHOTS.SHORT_DIST - near) * sh + (r1 * 2 - 1) * SHOTS.SHORT_ERR * sh;
+    const opts = { speed: 1 - (1 - SHOTS.SHORT_SPEED) * sh, depth: SH_PH.NET_Y - dist };
+    if (dist < SHOTS.SHORT_NET_LIMIT) opts.clearance = -8;
+    return SH_PH.hitBall(ball, side, aimX, opts);
+  }
   return SH_PH.hitBall(ball, side, aimX, {
     speed: 1 + SHOTS.POWER_SPEED_GAIN * p, depth: SH_PH.RETURN_DEPTH - SHOTS.POWER_DEPTH * p,
-    lateral: (r1 * 2 - 1) * SHOTS.LATERAL_ERR * p, power: p, arc: (r2 * 2 - 1) * SHOTS.ARC_ERR * p,
+    power: p, arc: (r2 * 2 - 1) * SHOTS.ARC_ERR * p,
   });
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SHOTS, contactOffset, swingPower, swingTrack, swingSpeed, contactShot };
+  module.exports = { SHOTS, contactOffset, swingPower, swingShort, aimHelp, swingTrack, swingSpeed, contactShot };
 }
 
 REGISTRY['./shots.js'] = module.exports;
@@ -778,8 +870,12 @@ const COMPUTER = {
   OFFCENTRE_CHANCE: 0.12,   // share of its shots where it meets the ball off-centre without meaning to
   OFFCENTRE_MIN: 14,        // ...by this many units sideways of where it meant to (the racket half-width is 28)...
   OFFCENTRE_MAX: 28,        // ...to this many, to either side
-  HARD_CHANCE: 0.20,        // share of its shots where it runs through the ball and hits too hard (and so too long or into the net)
+  HARD_CHANCE: 0.20,        // share of its shots where it runs through the ball and hits too hard (it reads as a hard hit only a little, so these go long, hardly ever into the net: see proof/shot-variety/net-errors.txt)
   HARD_LUNGE: 1,            // how hard that is, 0..1 (1 is full power)
+  SHORT_CHANCE: 0.12,       // share of its shots where it plays a short ball on purpose (it runs back through the ball); the touch error is the player's too (src/shots.js)
+  WIDE_BALL: 25,            // a ball met this close to a sideline (or beyond it) is a wide ball: it cannot send it at a sharp angle, it has to bring it back in...
+  WIDE_AIM: 70,             // ...so it aims at least this far inside that sideline (a person does the same: the racket cannot stand far enough outside to cut it)
+  AIM_MARGIN: 55,           // it aims at least this far inside the sidelines (an error of its own can then still take the ball out over the line)
   MAX_AIM: 0.85,            // it meets the ball at most this far from the racket middle (share of the half-width) to aim on purpose
   MAX_SHIFT: 30,            // its racket never stands further than this sideways of the ball (the racket still reaches the ball)
   PLACE_AWAY: 0.7,          // share of shots placed to the side away from the player (the rest go anywhere)
@@ -789,19 +885,25 @@ const COMPUTER = {
   SERVE_POWER_MIN: 0.3,     // its serve power varies between these
   SERVE_POWER_MAX: 0.8,
   SECOND_SERVE_FACTOR: 0.6, // a second serve has this share of the power
-  SHORT_BALL: 190,          // a ball of the player that lands closer to the net than this (units) is a short ball (a normal return lands 180 from the net)
+  SHORT_BALL: 100,          // a ball of the player that lands closer to the net than this (units) is a short ball (a normal return lands 180 from the net, a full power hit 120, a full short ball 40)
   APPROACH_CHANCE: 0.25,     // share of short balls after which the computer comes forward to the net
+  FULL_NEED: 0.8,           // how hard a ball is to play: the share of its top speed the computer needs to run sideways to reach it in time (run / (RACKET_SPEED x flight time)). From this share on the ball is hard and its human errors have their full chance...
+  EASY_FLOOR: 0.05,         // ...for an easy ball (it needs almost no running) the chances of its human errors (off-centre, hard, misjudged) are only this share of the full chance...
+  EASE_POWER: 2,            // ...rising with the hardness to this power for a ball in a rally...
+  SERVE_EASE_POWER: 3,      // ...and to this power for the return of a serve (a receiver plays an easy serve safely: a player who never moves in a rally, who only serves, hardly wins a point)
+  RALLY_TIRE: 0.02,         // ...plus this share for every shot of the rally after the first (a long rally of easy balls tires it, so it still ends)
+  NET_CHANCE: 0.30,         // share of the hardest balls it plays into the net (a separate error, its own draw; the chance is this x the square of the hardness of the ball, so an easy ball is almost never netted)
   LET_GO_CHANCE: 0.9,        // share of balls going out (in the air, landing beyond its lines) that it recognises and lets go; the rest it plays, as a person sometimes does
   LOB_REACT_MIN: 0.79,        // when it stands at the net and is lobbed, it notices and starts back after this share of the lob's flight time...
   LOB_REACT_MAX: 0.99,        // ...up to this share (a deep lob is then often too far away to reach, whatever spot it was hit from)
 };
 
 // The three levels. Each lists only what differs from COMPUTER; advanced is empty because COMPUTER is advanced (the strength the human approved
-// after task 4). Beginner errs about twice as often, pro about a third as often. Change a number here to retune a level.
+// after task 4). Beginner errs about half as often again (task 10 lowered it from twice: without the aim clamp more of its errors go out over a sideline, and a player who never moves has to stay under 5%), pro about a third as often. Change a number here to retune a level.
 const LEVELS = {
-  beginner: { OFFCENTRE_CHANCE: 0.24, HARD_CHANCE: 0.36, MISJUDGE_CHANCE: 0.22, LET_GO_CHANCE: 0.8 },
+  beginner: { OFFCENTRE_CHANCE: 0.19, HARD_CHANCE: 0.31, MISJUDGE_CHANCE: 0.16, NET_CHANCE: 0.45, LET_GO_CHANCE: 0.8 },
   advanced: {},
-  pro: { OFFCENTRE_CHANCE: 0.04, HARD_CHANCE: 0.07, MISJUDGE_CHANCE: 0.03, LET_GO_CHANCE: 0.97 },
+  pro: { OFFCENTRE_CHANCE: 0.04, HARD_CHANCE: 0.07, MISJUDGE_CHANCE: 0.03, NET_CHANCE: 0.10, LET_GO_CHANCE: 0.97 },
 };
 const LEVEL_NAMES = ['beginner', 'advanced', 'pro'];
 
@@ -816,31 +918,58 @@ function cpDraw(rand) {
   return typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.5;
 }
 
+// How hard the ball that was just hit is to play, 0 (easy) to 1 (hard): the share of its top speed the computer needs to run sideways to the place where the
+// ball lands in the time the ball is in the air (it runs to the ball's x while the ball comes), divided by FULL_NEED. A slow ball, a ball close to the racket and a ball that comes straight at it are easy; a
+// fast, wide ball far from the racket is hard. `land` is { x, y }, `from` the computer racket, `flight` the seconds until the ball lands.
+function computerHardness(land, from, flight, level) {
+  const K = level || COMPUTER;
+  if (!land || !from || !Number.isFinite(land.x) || !Number.isFinite(land.y) || !Number.isFinite(from.x) || !Number.isFinite(from.y)) return 1;
+  const t = typeof flight === 'number' && Number.isFinite(flight) && flight > 0.05 ? flight : 0.05;
+  const need = Math.abs(land.x - from.x) / (CP_PH.RACKET_SPEED * t);
+  return Math.min(1, Math.max(0, need / K.FULL_NEED));
+}
+
+// The share of its full error chance the computer has against a ball of this hardness (1 when no hardness is given): EASY_FLOOR for an easy ball, rising
+// with the hardness (to the power EASE_POWER) to 1. A ball that only needs a little running is played almost without human errors.
+function cpScale(hard, K) {
+  const h = typeof hard === 'number' && Number.isFinite(hard) ? Math.min(1, Math.max(0, hard)) : 1;
+  return K.EASY_FLOOR + (1 - K.EASY_FLOOR) * Math.pow(h, K.EASE_POWER);
+}
+
+// Does the computer play its next shot as a short ball? Always draws one number from rand.
+function computerTouch(rand, level, hard) {
+  const K = level || COMPUTER;
+  const h = typeof hard === 'number' && Number.isFinite(hard) ? Math.min(1, Math.max(0, hard)) : 0;
+  return cpDraw(rand) < K.SHORT_CHANCE * (1 - h);
+}
+
 // How far sideways the computer misjudges the next ball: 0 for most balls, else a signed offset.
-// Always draws three numbers from rand.
-function computerMisjudge(rand, level) {
+// `hard` (0..1, see computerHardness; 1 when not given) scales the chance. Always draws three numbers from rand.
+function computerMisjudge(rand, level, hard) {
   const K = level || COMPUTER;
   const r1 = cpDraw(rand), r2 = cpDraw(rand), r3 = cpDraw(rand);
-  if (!(r1 < K.MISJUDGE_CHANCE)) return 0;
+  if (!(r1 < K.MISJUDGE_CHANCE * cpScale(hard, K))) return 0;
   return (r2 < 0.5 ? -1 : 1) * (K.MISJUDGE_MIN + r3 * (K.MISJUDGE_MAX - K.MISJUDGE_MIN));
 }
 
 // The computer's next shot given where the player stands. Returns { aimX, errShift, lunge, error }: where it means to send the ball,
 // how far sideways it will wrongly stand of where it meant to (0 for most shots), how hard it runs through the ball (0 for most shots),
-// and 'none', 'offcentre', 'hard' or 'both'. Always draws five numbers from rand.
-function computerShot(playerX, rand, level) {
+// 'none', 'offcentre', 'hard' or 'both', and `net`: true when it will play this ball into the net (a separate error: NET_CHANCE, only against hard balls).
+// `hard` (0..1, see computerHardness; 1 when not given) scales the chances of all its errors. Always draws six numbers from rand.
+function computerShot(playerX, rand, level, hard) {
   const K = level || COMPUTER;
-  const r1 = cpDraw(rand), r2 = cpDraw(rand), r3 = cpDraw(rand), r4 = cpDraw(rand), r5 = cpDraw(rand);
+  const r1 = cpDraw(rand), r2 = cpDraw(rand), r3 = cpDraw(rand), r4 = cpDraw(rand), r5 = cpDraw(rand), r6 = cpDraw(rand);
+  const sc = cpScale(hard, K), h = typeof hard === 'number' && Number.isFinite(hard) ? Math.min(1, Math.max(0, hard)) : 1;
   const px = typeof playerX === 'number' && Number.isFinite(playerX) ? playerX : 180;
-  let lo = 24, hi = 336;
+  let lo = K.AIM_MARGIN, hi = CP_PH.COURT_W - K.AIM_MARGIN;
   if (r3 < K.PLACE_AWAY) {
     if (px <= 180) lo = 210; else hi = 150;
   }
   const aimX = lo + r4 * (hi - lo);
-  const off = r1 < K.OFFCENTRE_CHANCE;
-  const hard = r2 < K.HARD_CHANCE;
+  const off = r1 < K.OFFCENTRE_CHANCE * sc;
+  const rough = r2 < K.HARD_CHANCE * sc;
   const errShift = off ? (r5 < 0.5 ? -1 : 1) * (K.OFFCENTRE_MIN + Math.abs(r5 - 0.5) * 2 * (K.OFFCENTRE_MAX - K.OFFCENTRE_MIN)) : 0;
-  return { aimX, errShift, lunge: hard ? K.HARD_LUNGE : 0, error: off && hard ? 'both' : off ? 'offcentre' : hard ? 'hard' : 'none' };
+  return { aimX, errShift, lunge: rough ? K.HARD_LUNGE : 0, net: r6 < K.NET_CHANCE * h * h, error: off && rough ? 'both' : off ? 'offcentre' : rough ? 'hard' : 'none' };
 }
 
 // How far sideways of the ball the computer racket should stand to send the ball toward plan.aimX (the rule of the contact point),
@@ -848,7 +977,10 @@ function computerShot(playerX, rand, level) {
 function computerShift(plan, ballX, level) {
   const K = level || COMPUTER;
   if (!plan || !Number.isFinite(ballX)) return 0;
-  const aim = Number.isFinite(plan.aimX) ? plan.aimX : ballX;
+  let aim = Number.isFinite(plan.aimX) ? plan.aimX : ballX;
+  // it chooses its aim with the geometry in mind: a wide ball is brought back in (this is its choice of contact point, not a correction of the angle)
+  if (ballX < K.WIDE_BALL) aim = Math.max(aim, K.WIDE_AIM);
+  else if (ballX > CP_PH.COURT_W - K.WIDE_BALL) aim = Math.min(aim, CP_PH.COURT_W - K.WIDE_AIM);
   const offset = Math.min(K.MAX_AIM, Math.max(-K.MAX_AIM, (aim - ballX) / CP_SH.SHOTS.AIM_RANGE));
   const shift = -offset * CP_PH.RACKET_HALF_W + (Number.isFinite(plan.errShift) ? plan.errShift : 0);
   return Math.min(K.MAX_SHIFT, Math.max(-K.MAX_SHIFT, shift));
@@ -897,7 +1029,7 @@ function computerLetsGo(rand, level) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { COMPUTER, LEVELS, LEVEL_NAMES, computerLevel, computerLobReaction, computerLetsGo, computerMisjudge, computerShot, computerShift, computerServe, computerApproach, computerRetreats };
+  module.exports = { COMPUTER, LEVELS, LEVEL_NAMES, computerLevel, computerHardness, computerLobReaction, computerLetsGo, computerMisjudge, computerTouch, computerShot, computerShift, computerServe, computerApproach, computerRetreats };
 }
 
 REGISTRY['./computer.js'] = module.exports;
@@ -905,6 +1037,7 @@ REGISTRY['./computer.js'] = module.exports;
 <script>
 // One match: serves, faults, lets, how a point ends, the score, the computer playing, the end of the set.
 // stepMatch moves the whole match forward by dt; the page only draws it and passes in input.
+// Two players on one phone (task 9): newTwoPlayerState makes a match with no computer; both rackets are human (input.top steers the top one).
 // Pure functions: chance comes in as `rand`, time as `dt`. Players are 'player' and 'computer' (scoring.js);
 // sides are 'bottom' (the player) and 'top' (the computer) (physics.js).
 const MP = typeof require === 'function' ? require('./physics.js') : null;
@@ -922,6 +1055,7 @@ const MATCH = {
   SERVE_WAIT_MAX: 2,          // ...or this many seconds after its delay, whatever happens
   PLAYER_SERVE_POWER: 0.5,    // a serve asked for with the plain serve action (input.serve, used by simulations): medium power...
   PLAYER_SECOND_POWER: 0.4,   // ...and a little softer on the second serve
+  COUNTDOWN: 3,               // two players: the countdown before the first serve, in seconds: "3", "2", "1" (one second each), then "Your serve"
 };
 
 function sideOf(who) { return who === 'computer' ? 'top' : 'bottom'; }
@@ -983,13 +1117,51 @@ function waitingFields(score) {
 function newMatchState(firstServer, level) {
   const score = MS.newMatch(firstServer);
   return {
-    level: MC.LEVEL_NAMES.includes(level) ? level : 'advanced', swing: [], clock: 0, power: 0, cpuReact: 0,
+    level: MC.LEVEL_NAMES.includes(level) ? level : 'advanced', swing: [], cpuSwing: [], clock: 0, power: 0, cpuReact: 0,
     score, phase: 'waiting', timer: score.server === 'computer' ? MATCH.SERVE_DELAY : 0,
     ...waitingFields(score), faults: 0, serve: null, ball: null,
     racket: MP.startRacket('bottom'), opponent: MP.startRacket('top'),
     hits: 0, message: '', message2: '', cpuOffset: 0, cpuShot: null, log: [],
     charge: 0, holding: false, prevHold: false, cpuServe: null, walked: false, racketVy: 0, opponentVy: 0, cpuNet: false,
   };
+}
+
+// A match between two humans on one phone. The bottom human is 'player' and serves first (firstServer 'computer' puts the top human first, for tests);
+// level is the bottom human's, levelTop the top human's: each sets only that human's own aim help. A countdown of MATCH.COUNTDOWN seconds comes before the first serve.
+function newTwoPlayerState(level, levelTop, firstServer) {
+  const m = newMatchState(firstServer === 'computer' ? 'computer' : 'player', level);
+  return { ...m, two: true, levelTop: MC.LEVEL_NAMES.includes(levelTop) ? levelTop : 'advanced', countdown: MATCH.COUNTDOWN, timer: 0, opponentPower: 0 };
+}
+
+// Who serves first in the next two-player match, given who served first in the previous one ('player' = the bottom human, 'computer' = the top human; nothing yet, or anything else, for the first match):
+// the bottom human in the first match, then they alternate. The page only keeps the answer and passes it on.
+function nextTwoFirstServer(previous) { return previous === 'player' ? 'computer' : previous === 'computer' ? 'player' : 'player'; }
+
+// The words shown to the server of a two-player match while it waits to serve: { side, text } with the countdown "3", "2", "1" and then "Your serve"
+// ("Second serve" after a fault). null outside a two-player match and outside the wait for a serve.
+function twoCue(m) {
+  if (!m || !m.two || m.phase !== 'waiting') return null;
+  const cd = Number.isFinite(m.countdown) ? m.countdown : 0;
+  if (cd > 0) return { side: m.server, text: String(Math.min(MATCH.COUNTDOWN, Math.ceil(cd - 1e-9))) };
+  return { side: m.server, text: m.faults > 0 ? 'Second serve' : 'Your serve' };
+}
+
+// The label of the one action button of a human on a phone: 'Serve' before that human's serve (the pause after a fault or a point included), else 'Lob'.
+function actionLabel(m, side) {
+  if (!m || !m.score || (m.phase !== 'waiting' && m.phase !== 'pause')) return 'Lob';
+  return m.score.server === whoOf(side) ? 'Serve' : 'Lob';
+}
+
+// What the action button of `side` does while it is `down`: it is the serve button (hold) while it says Serve and the lob button (shot) while it says Lob.
+function buttonInput(m, side, down) {
+  const serve = actionLabel(m, side) === 'Serve';
+  return { hold: !!down && serve, shot: !!down && !serve };
+}
+
+// What a human reads at the end of the set in a two-player match: 'You win the set!' or 'You lose the set' ('' while the set is on).
+function setResultText(score, side) {
+  if (!score || !score.winner) return '';
+  return score.winner === whoOf(side) ? 'You win the set!' : 'You lose the set';
 }
 
 function deadBall(ball) { return ball ? MP.makeBall({ ...ball, live: false }) : null; }
@@ -1016,8 +1188,16 @@ function serveOver(m, outcome) {
   };
 }
 
+// The computer prepares for the ball that has just left the player's racket. How hard the ball is to play (how far the computer must run sideways, in the
+// time the ball is in the air; src/computer.js) decides how likely its human errors are, and its net error (its own chance). It plays the return of a serve
+// more safely than a rally ball (no net error, a steeper rise of the errors with the hardness), and a long rally tires it: even easy balls then get more errors.
 function rollComputer(m, rand) {
-  return { ...m, cpuLet: null, cpuOffset: MC.computerMisjudge(rand, strengthOf(m)), cpuShot: MC.computerShot(m.racket.x, rand, strengthOf(m)) };
+  const level = strengthOf(m);
+  const lobbed = m.cpuNet && MC.computerRetreats(m.ball);   // a lob over the computer at the net: it must give up the net and run back, always a hard ball (a good lob keeps winning about half the time, GAME.md task 6)
+  const hard = lobbed ? 1 : m.ball && m.opponent ? MC.computerHardness(MP.landingOf(m.ball), m.opponent, airTime(m.ball), level) : 1;
+  const tired = Math.min(1, level.EASY_FLOOR + level.RALLY_TIRE * Math.max(0, m.hits - 1));
+  const K = { ...level, EASY_FLOOR: tired, NET_CHANCE: m.serve ? 0 : level.NET_CHANCE, EASE_POWER: m.serve ? level.SERVE_EASE_POWER : level.EASE_POWER };
+  return { ...m, cpuLet: null, cpuOffset: MC.computerMisjudge(rand, K, hard), cpuShot: { ...MC.computerShot(m.racket.x, rand, K, hard), short: MC.computerTouch(rand, K, hard) } };
 }
 
 // The serve leaves the server's racket: it starts where the racket stands and is aimed by where the racket stands along the baseline.
@@ -1031,7 +1211,7 @@ function launchServe(m, power, rand) {
     ...m, phase: 'play', ball, serve: { server: m.server, box, cord: false }, hits: 1, message: '', message2: '', cpuOffset: 0,
     charge: 0, holding: false, cpuServe: null, cpuNet: false, cpuReact: 0, cpuLet: null,
   };
-  if (m.server !== 'top') next = rollComputer(next, rand);
+  if (m.server !== 'top' && !m.two) next = rollComputer(next, rand);
   return next;
 }
 
@@ -1050,21 +1230,28 @@ function playStep(m, step, input, rand) {
       const res = MP.judge(e);
       if (res) return pointOver(m, otherSide(res.loser), res.reason === 'second bounce' ? (m.hits <= 1 ? 'ace' : 'missed') : res.reason, pointMessage(res.reason, m.hits));
       // A ball of the player that lands short in the rally: the computer may come forward to the net (a deep one sends it back).
-      if (e.type === 'bounce' && e.n === 1 && e.hitter === 'bottom') m = { ...m, cpuNet: MC.computerApproach(MP.NET_Y - e.y, rand, strengthOf(m)) };
+      if (!m.two && e.type === 'bounce' && e.n === 1 && e.hitter === 'bottom') m = { ...m, cpuNet: MC.computerApproach(MP.NET_Y - e.y, rand, strengthOf(m)) };
     }
   }
   // A ball in the air may be volleyed, except a serve: the receiver always lets it bounce.
   const volley = !m.serve;
-  const mine = MH.contactShot(m.ball, m.racket, 'bottom', { vy: m.racketVy, lob: !!(input && input.shot), volley, letGo: true }, rand);   // a person lets a ball go that is going out
+  const mine = MH.contactShot(m.ball, m.racket, 'bottom', { vy: m.racketVy, lob: !!(input && input.shot), volley, letGo: true, level: m.level }, rand);   // a person lets a ball go that is going out
+  if (mine && m.two) return { ...m, ball: mine, hits: m.hits + 1 };   // two humans: nobody answers for the top end
   if (mine) {
     const next = rollComputer({ ...m, ball: mine, hits: m.hits + 1 }, rand);
     // A lob over the computer at the net sends it back, but it needs a moment to notice (it stands still for cpuReact seconds).
     const retreat = m.cpuNet && MC.computerRetreats(mine);
     return { ...next, cpuNet: m.cpuNet && !retreat, cpuReact: retreat ? MC.computerLobReaction(rand, strengthOf(m), airTime(mine)) : 0 };
   }
+  if (m.two) {
+    // the top human plays by the same rules as the bottom one, with their own button (lob), their own racket speed and their own level
+    const top = input && input.top ? input.top : {};
+    const theirs = MH.contactShot(m.ball, m.opponent, 'top', { vy: m.opponentVy, lob: !!top.shot, volley, letGo: true, level: m.levelTop }, rand);
+    return theirs ? { ...m, ball: theirs, hits: m.hits + 1 } : m;
+  }
   // The computer judges a ball going out too, once per ball, and sometimes misjudges it (cpuLet false: it plays the ball).
   if (volley && m.cpuLet == null && MP.goesOut(m.ball) && MP.canHit(m.ball, m.opponent, 'top', true)) m = { ...m, cpuLet: MC.computerLetsGo(rand, strengthOf(m)) };
-  const theirs = MH.contactShot(m.ball, m.opponent, 'top', { vy: m.opponentVy, lob: false, volley, letGo: m.cpuLet === true }, rand);
+  const theirs = MH.contactShot(m.ball, m.opponent, 'top', { vy: m.opponentVy, lob: false, volley, letGo: m.cpuLet === true, netError: !!(m.cpuShot && m.cpuShot.net) }, rand);
   if (theirs) return { ...m, ball: theirs, hits: m.hits + 1 };
   return m;
 }
@@ -1073,7 +1260,7 @@ function playStep(m, step, input, rand) {
 function computerPlan(m) {
   const p = m.cpuShot;
   if (!p || !m.ball) return undefined;
-  return { shift: MC.computerShift(p, m.ball.x, strengthOf(m)), lunge: p.lunge, net: m.cpuNet };
+  return { shift: MC.computerShift(p, m.ball.x, strengthOf(m)), lunge: p.lunge, back: p.short ? 1 : 0, net: m.cpuNet };
 }
 
 // The ball in the server's hand, waiting at the racket.
@@ -1087,7 +1274,7 @@ function tossBall(m) {
 // The computer walks to a spot it picked, then serves after its delay.
 function waitStep(m, input, step, rand, prev) {
   m = { ...m };
-  if (m.server === 'top') {
+  if (m.server === 'top' && !m.two) {
     if (!m.cpuServe) m.cpuServe = MC.computerServe(MP.serveBox('top', m.serveSide), rand, m.faults > 0, strengthOf(m));
     const spot = { x: MP.serveRacketX('top', m.serveSide, m.cpuServe.aimX), y: MP.serveSpot('top') };
     m.opponent = MP.moveRacketToward(m.opponent, spot, step, 'top');
@@ -1100,21 +1287,30 @@ function waitStep(m, input, step, rand, prev) {
     m.ball = tossBall(m);
     return m;
   }
-  m.opponent = MP.computerRacketStep(m.opponent, null, step, 'top', 0);
+  // A human serves: the bottom one always, the top one in a two-player match (input.top). In a two-player match the other racket is a human's too.
+  const top = m.server === 'top';
+  const inp = (top ? input && input.top : input) || {};
+  const key = top ? 'opponent' : 'racket';
+  const before = top ? prev.opponent : prev.racket;
+  if (m.two) { m.countdown = Math.max(0, (Number.isFinite(m.countdown) ? m.countdown : 0) - step); if (m.countdown < 1e-9) m.countdown = 0; }
+  else m.opponent = MP.computerRacketStep(m.opponent, null, step, 'top', 0);
+  const counting = m.two && m.countdown > 0;
+  let r = m[key];
   if (!m.walked) {
-    // the player first walks to the middle of the serving half; then the input takes over
-    const h = MP.serveHalf('bottom', m.serveSide), mid = (h.lo + h.hi) / 2;
-    const dx = mid - prev.x, sx = MP.RACKET_SPEED * step;
-    m.racket = { x: Math.abs(dx) <= sx ? mid : prev.x + Math.sign(dx) * sx, y: m.racket.y };
-    if (m.racket.x === mid) m.walked = true;
+    // the server first walks to the middle of the serving half; then the input takes over
+    const h = MP.serveHalf(m.server, m.serveSide), mid = (h.lo + h.hi) / 2;
+    const dx = mid - before.x, sx = MP.RACKET_SPEED * step;
+    r = { x: Math.abs(dx) <= sx ? mid : before.x + Math.sign(dx) * sx, y: r.y };
+    if (r.x === mid) m.walked = true;
   }
-  const spot = MP.clampServeRacket(m.racket, 'bottom', m.serveSide);
-  const dy = spot.y - m.racket.y, stepY = MP.RACKET_SPEED * step;
-  m.racket = { x: spot.x, y: Math.abs(dy) <= stepY ? spot.y : m.racket.y + Math.sign(dy) * stepY };
-  const ready = m.walked && Math.abs(m.racket.y - spot.y) <= MATCH.SERVE_READY;
-  const hold = !!(input && input.hold);
+  const spot = MP.clampServeRacket(r, m.server, m.serveSide);
+  const dy = spot.y - r.y, stepY = MP.RACKET_SPEED * step;
+  r = { x: spot.x, y: Math.abs(dy) <= stepY ? spot.y : r.y + Math.sign(dy) * stepY };
+  m[key] = r;
+  const ready = m.walked && Math.abs(r.y - spot.y) <= MATCH.SERVE_READY && !counting;
+  const hold = !!inp.hold;
   const power = m.faults > 0 ? MATCH.PLAYER_SECOND_POWER : MATCH.PLAYER_SERVE_POWER;
-  if (input && input.serve) return launchServe(m, power, rand);
+  if (inp.serve && !counting) return launchServe(m, power, rand);
   if (!m.holding && hold && !m.prevHold && ready) { m.holding = true; m.charge = 0; }
   m.prevHold = hold;
   if (m.holding) {
@@ -1131,6 +1327,7 @@ function waitStep(m, input, step, rand, prev) {
 function stepMatch(state, input, dt, rand) {
   const step = typeof dt === 'number' && Number.isFinite(dt) && dt > 0 ? Math.min(MP.MAX_DT, dt) : 0;
   let m = { ...state, racket: MP.clampRacket(input && input.racket ? input.racket : state.racket, 'bottom') };
+  if (state.two) m.opponent = MP.clampRacket(input && input.top && input.top.racket ? input.top.racket : state.opponent, 'top');   // a human steers the top racket
   // Power counts the racket's movement over a short window (shots.js), so the same swing gives the same power at any frame rate.
   if (step > 0) {
     const clock = (Number.isFinite(state.clock) ? state.clock : 0) + step;
@@ -1141,35 +1338,52 @@ function stepMatch(state, input, dt, rand) {
     m.racketVy = MH.swingSpeed(m.swing);
   } else m.racketVy = 0;
   m.power = MH.swingPower(m.racketVy, 'bottom');
-  m = stepPhase(m, input, step, rand, state.racket);
-  m.opponentVy = step > 0 ? (m.opponent.y - state.opponent.y) / step : 0;
+  // The top human's racket speed is read the same way, before the phase step uses it for their hit.
+  if (state.two) {
+    if (step > 0) {
+      const old = Array.isArray(state.cpuSwing) ? state.cpuSwing : [];
+      const seeded = old.length > 0 && Math.abs(old[old.length - 1].y - state.opponent.y) < 1e-6 ? old : [{ t: m.clock - step, y: state.opponent.y }];
+      m.cpuSwing = MH.swingTrack(seeded, m.clock, m.opponent.y);
+      m.opponentVy = MH.swingSpeed(m.cpuSwing);
+    } else m.opponentVy = 0;
+    m.opponentPower = MH.swingPower(m.opponentVy, 'top');
+  }
+  m = stepPhase(m, input, step, rand, state);
+  // The computer racket's speed is read over the same short moment as the player's (shots.js), so that its power and its short balls follow the same rules.
+  if (state.two) return m;
+  if (step > 0) {
+    const old = Array.isArray(state.cpuSwing) ? state.cpuSwing : [];
+    const seeded = old.length > 0 && Math.abs(old[old.length - 1].y - state.opponent.y) < 1e-6 ? old : [{ t: m.clock - step, y: state.opponent.y }];
+    m.cpuSwing = MH.swingTrack(seeded, m.clock, m.opponent.y);
+    m.opponentVy = MH.swingSpeed(m.cpuSwing);
+  } else m.opponentVy = 0;
   return m;
 }
 
 function stepPhase(m, input, step, rand, prev) {
   if (m.phase === 'play') {
     m = playStep(m, step, input, rand);
-    if (m.phase !== 'play') return m;
+    if (m.phase !== 'play' || m.two) return m;
     // lobbed while at the net: the computer has not noticed yet, its racket stands still
     if (m.cpuReact > 0) return { ...m, cpuReact: Math.max(0, m.cpuReact - step) };
     m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', m.cpuOffset, computerPlan(m));
     return m;
   }
   if (m.phase === 'waiting') return waitStep(m, input, step, rand, prev);
-  m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', 0);
+  if (!m.two) m.opponent = MP.computerRacketStep(m.opponent, m.ball, step, 'top', 0);
   if (m.ball) m.ball = MP.stepBall(m.ball, step).ball;
   if (m.phase === 'pause') {
     m.timer -= step;
     if (m.timer <= 0) {
-      m = { ...m, ...waitingFields(m.score), phase: 'waiting', ball: null, serve: null, charge: 0, holding: false, prevHold: !!(input && input.hold), cpuServe: null, walked: false };
-      m.timer = m.server === 'top' ? MATCH.SERVE_DELAY : 0;
+      m = { ...m, ...waitingFields(m.score), phase: 'waiting', ball: null, serve: null, charge: 0, holding: false, prevHold: !!(m.two && m.server === 'top' ? input && input.top && input.top.hold : input && input.hold), cpuServe: null, walked: false };
+      m.timer = m.server === 'top' && !m.two ? MATCH.SERVE_DELAY : 0;
     }
   }
   return m;
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { MATCH, judgeServe, resolveServe, serveMessage, pointMessage, gameMessage, newMatchState, stepMatch };
+  module.exports = { MATCH, judgeServe, resolveServe, serveMessage, pointMessage, gameMessage, newMatchState, newTwoPlayerState, nextTwoFirstServer, twoCue, actionLabel, buttonInput, setResultText, stepMatch };
 }
 
 REGISTRY['./match.js'] = module.exports;
@@ -1184,7 +1398,11 @@ REGISTRY['./match.js'] = module.exports;
   const SERVICE = SERVICE_LEN;             // service line distance from the net
   const HEIGHT_SCALE = 0.9;                // how many screen units one unit of ball height lifts the ball
   const BALL_R = 5;
+  const NET_BAND = 10;                     // thickness of the net band, court units (a racket stands at least 28 from the net line, its head 24 tall: they never meet)
+  const NET_NAME = 'Gerd Schwaderer';
+  const NAME_SIZE = 10;                    // court units
   const MAX_STEP = 1 / 60;                 // longest time step handed to the match
+  const CLOSE_HOLD = 1000;                 // ms the close mark must be held to end a two-player match
   const OVER_DELAY = 500;                  // ms the end of the set stays before Space starts a new match
   const HELP = 'Move: mouse, finger or arrows. Lob: Space, right button or Shot. Run at the net to hit hard and volley.';
   const SERVE_HELP = 'hold click, tap or Space for power, move to aim, let go.';
@@ -1194,10 +1412,16 @@ REGISTRY['./match.js'] = module.exports;
   const ctx = canvas.getContext('2d');
   let scale = 1;
   let firstServer = 'player';
+  let twoFirst;                            // who served first in the last two-player match (none yet); Match.nextTwoFirstServer decides who serves first in the next one
 
   // state.m is the match (see src/match.js); state.speed runs time faster (only used by proof scripts); state.rand is the chance source.
+  // Two players on one phone: the bottom player's steering (racket, target, finger, moveId, shotButton, btnLatch) lives in `state` itself, the top player's in state.top.
+  // state.two is the mode, state.duo holds the levels the two players have tapped so far (the match starts when both have).
+  const newTopPad = () => ({ racket: startRacket('top'), target: null, finger: null, moveId: null, shotButton: false, btnLatch: false });
   const state = { choosing: true, started: false, level: 'advanced', pick: 1, flash: null, trail: [], lastHits: 0, m: Match.newMatchState(firstServer), racket: startRacket('bottom'), target: null, keys: {}, overAt: 0, speed: 1, rand: Math.random,
-    mouseHeld: false, fingerHeld: false, spaceHeld: false, spaceIgnore: false, rightHeld: false, shotButton: false, holdId: null, moveId: null, holdLatch: false, shotLatch: false, hold: false, shot: false, helpDone: false };
+    mouseHeld: false, fingerHeld: false, spaceHeld: false, spaceIgnore: false, rightHeld: false, shotButton: false, btnLatch: false, holdId: null, moveId: null, holdLatch: false, shotLatch: false, hold: false, shot: false, helpDone: false,
+    two: false, duo: { top: null, bottom: null }, top: newTopPad(), topShot: false, closeAt: 0 };
+  const padOf = (side) => (side === 'top' ? state.top : state);
   window.__state = state;
 
   function fit() {
@@ -1230,23 +1454,28 @@ REGISTRY['./match.js'] = module.exports;
   // it. While the finger moves up, the target is therefore pushed up by that lag (the "lead", at most LEAD_MAX px), so the racket stays about
   // TOUCH_OFFSET above the finger as long as the finger is not faster than the racket's top speed. The lead fades out when the finger slows down.
   const LEAD_MAX = 110;
-  const touchTarget = (f, lead) => toCourt({ clientX: f.x, clientY: f.y - TOUCH_OFFSET - lead });
-  function aim(e) {
-    if (e.pointerType !== 'touch') { state.target = toCourt(e); return; }
-    const now = performance.now(), f = state.finger;
+  // The racket floats TOUCH_OFFSET from the finger on the side of the net: up the screen for the bottom player, down the screen for the top player (who sits at the other end).
+  const sgn = (side) => (side === 'top' ? 1 : -1);
+  const touchTarget = (f, lead, side) => toCourt({ clientX: f.x, clientY: f.y + sgn(side) * (TOUCH_OFFSET + lead) });
+  // Steers the racket of `side` (default: the bottom one) from a pointer event; the pad of that side holds its finger and target.
+  function aim(e, side) {
+    side = side || 'bottom';
+    const P = padOf(side);
+    if (e.pointerType !== 'touch') { P.target = toCourt(e); return; }
+    const now = performance.now(), f = P.finger;
     if (f && f.id === e.pointerId && now > f.t) {
-      const v = (f.y - e.clientY) / ((now - f.t) / 1000);   // px per second, up is positive
-      state.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: (f.v || 0) * 0.5 + v * 0.5 };
-    } else if (!f || f.id !== e.pointerId) state.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: 0 };
-    else state.finger = { ...f, x: e.clientX, y: e.clientY };
-    state.target = touchTarget(state.finger, Math.max(0, Math.min(LEAD_MAX, state.finger.v / EASE_GAIN)));
+      const v = sgn(side) * (e.clientY - f.y) / ((now - f.t) / 1000);   // px per second, toward the net is positive
+      P.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: (f.v || 0) * 0.5 + v * 0.5 };
+    } else if (!f || f.id !== e.pointerId) P.finger = { id: e.pointerId, x: e.clientX, y: e.clientY, t: now, v: 0 };
+    else P.finger = { ...f, x: e.clientX, y: e.clientY };
+    P.target = touchTarget(P.finger, Math.max(0, Math.min(LEAD_MAX, P.finger.v / EASE_GAIN)), side);
   }
   // Every frame while a finger steers: the lead follows the finger's speed, which falls to 0 when no move event comes.
-  function steerLead(dt) {
-    const f = state.finger;
-    if (!f || state.moveId !== f.id) return;
+  function steerLead(dt, side) {
+    const P = padOf(side || 'bottom'), f = P.finger;
+    if (!f || P.moveId !== f.id) return;
     if (performance.now() - f.t > 40) f.v *= Math.exp(-dt * 12);
-    state.target = touchTarget(f, Math.max(0, Math.min(LEAD_MAX, f.v / EASE_GAIN)));
+    P.target = touchTarget(f, Math.max(0, Math.min(LEAD_MAX, f.v / EASE_GAIN)), side || 'bottom');
   }
   const LEVELS = ['beginner', 'advanced', 'pro'];
   const LEVEL_TEXT = { beginner: 'Beginner', advanced: 'Advanced', pro: 'Pro' };
@@ -1269,6 +1498,56 @@ REGISTRY['./match.js'] = module.exports;
     if (state.started) newMatch(); else { state.m = Match.newMatchState(firstServer, state.level); state.racket = startRacket('bottom'); state.target = null; state.mouseHeld = state.fingerHeld = state.holdLatch = state.shotLatch = false; }
     state.started = true;
   }
+  // ---- two players on one phone (touch only): the "2 players" choice opens a level choice at each end; the match starts when both players have tapped a level.
+  function resetPads() {
+    state.racket = startRacket('bottom'); state.target = null; state.finger = null; state.moveId = null; state.shotButton = false; state.btnLatch = false;
+    Object.assign(state.top, newTopPad());
+    state.hold = state.shot = state.topShot = false;
+  }
+  function goFull() {
+    const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!f) return;
+    try { const p = f.call(el); if (p && p.catch) p.catch(() => { /* the phone does not allow it */ }); } catch (x) { /* none */ }
+  }
+  function leaveFull() {
+    if (!(document.fullscreenElement || document.webkitFullscreenElement)) return;
+    const f = document.exitFullscreen || document.webkitExitFullscreen;
+    try { const p = f.call(document); if (p && p.catch) p.catch(() => { /* none */ }); } catch (x) { /* none */ }
+  }
+  // The level choice of the two players: each taps a level at their own end. Also used by New game after a set.
+  function openDuoChooser() {
+    state.two = true; state.choosing = true; state.duo = { top: null, bottom: null };
+    state.mouseHeld = state.fingerHeld = state.holdLatch = state.shotLatch = state.spaceHeld = false; state.keys = {}; state.holdId = null;
+    resetPads();
+  }
+  function enterTwo() { if (state.two || !state.choosing) return; openDuoChooser(); goFull(); }
+  function duoPick(side, level) {
+    if (!state.two || !state.choosing || LEVELS.indexOf(level) < 0 || (side !== 'top' && side !== 'bottom')) return;
+    state.duo[side] = level;
+    if (!state.duo.top || !state.duo.bottom) return;
+    twoFirst = Match.nextTwoFirstServer(twoFirst);
+    state.m = Match.newTwoPlayerState(state.duo.bottom, state.duo.top, twoFirst);   // the countdown starts now, for whoever serves first
+    resetPads();
+    state.choosing = false; state.started = true; state.trail = []; state.flash = null; state.lastHits = 0;
+  }
+  // The close mark, held for a second: back to the start screen with all its texts.
+  function closeTwo() {
+    leaveFull();
+    state.two = false; state.closeAt = 0;
+    state.m = Match.newMatchState(firstServer, state.level);
+    resetPads(); state.trail = []; state.flash = null; state.lastHits = 0;
+    openChooser();
+  }
+  // A tap: the finger goes down and comes up on the same button (two fingers may tap two buttons at once, which a plain click does not always report).
+  function onTap(el, fn) {
+    let downId = null;
+    el.addEventListener('pointerdown', (e) => { downId = e.pointerId; e.preventDefault(); });
+    el.addEventListener('pointerup', (e) => { if (downId === e.pointerId) { downId = null; fn(e); } });
+    el.addEventListener('pointercancel', () => { downId = null; });
+  }
+  // A phone held sideways cannot be used by two players at its two ends: the page asks to turn it upright and the match waits (no time passes, nothing is pressed or steered).
+  const sideways = () => state.two && window.innerWidth > window.innerHeight;
+  const sideAt = (clientY) => { const r = canvas.getBoundingClientRect(); return clientY < r.top + (MARGIN + NET_Y) / VIEW_H * r.height ? 'top' : 'bottom'; };
   const isButton = (e) => !!(e.target && e.target.closest && e.target.closest('button'));
   // The mouse buttons are read from e.buttons on every pointer event, because the browser reports a second button pressed or released
   // while another is held as a plain pointermove: bit 1 is the left button (serve: hold), bit 2 the right button (the shot button).
@@ -1280,36 +1559,62 @@ REGISTRY['./match.js'] = module.exports;
     if (left && !state.mouseHeld) { if (state.m.phase !== 'over' && !isButton(e)) { state.mouseHeld = true; state.holdLatch = true; } }
     else if (!left) state.mouseHeld = false;
   }
-  // A finger moves the racket; only the finger that went down on the court does (another finger may hold the Shot button).
-  window.addEventListener('pointermove', (e) => { syncMouse(e); if (e.pointerType !== 'touch' || e.pointerId === state.moveId) aim(e); });
-  // Left button, a finger or a pen: move there and hold (serve button). Right button: the shot button. The context menu is blocked.
+  // A finger moves the racket; only the finger that went down on the court does (another finger may hold the action button). In a two-player match each finger
+  // steers only the racket of the half it went down in, wherever it moves afterwards.
+  window.addEventListener('pointermove', (e) => {
+    if (sideways()) return;   // sideways nothing is steered (the court is laid out for an upright phone)
+    if (state.two) { if (e.pointerType === 'touch') for (const side of ['bottom', 'top']) if (e.pointerId === padOf(side).moveId) aim(e, side); return; }
+    syncMouse(e); if (e.pointerType !== 'touch' || e.pointerId === state.moveId) aim(e);
+  });
+  // Left button or a pen: move there and hold (serve button). A finger only steers: on a phone the serve is the Serve button. Right button: the shot button. The context menu is blocked.
   window.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'touch') document.body.classList.add('touch');
-    if (isButton(e) || state.choosing) return;
+    if (isButton(e) || state.choosing || sideways()) return;
+    if (state.two) {
+      if (e.pointerType !== 'touch') return;
+      const side = sideAt(e.clientY), P = padOf(side);
+      if (P.moveId === null) { P.moveId = e.pointerId; aim(e, side); }
+      return;
+    }
     syncMouse(e);
     if (e.pointerType === 'touch' && state.moveId === null) state.moveId = e.pointerId;
     if (e.pointerType !== 'touch' || e.pointerId === state.moveId) aim(e);
-    if (e.pointerType !== 'mouse' && e.button === 0 && state.m.phase !== 'over') { state.holdLatch = true; state.fingerHeld = true; state.holdId = e.pointerId; }
+    if (e.pointerType === 'pen' && e.button === 0 && state.m.phase !== 'over') { state.holdLatch = true; state.fingerHeld = true; state.holdId = e.pointerId; }
   });
   const release = (e) => {
-    syncMouse(e);
-    if (e.pointerId === state.moveId) { state.moveId = null; if (state.finger) { state.target = touchTarget(state.finger, 0); state.finger = null; } }
+    if (!state.two) syncMouse(e);
+    for (const side of ['bottom', 'top']) {
+      const P = padOf(side);
+      if (e.pointerId === P.moveId) { P.moveId = null; if (P.finger) { if (!sideways()) P.target = touchTarget(P.finger, 0, side); P.finger = null; } }
+    }
     if (e.pointerId === state.holdId) { state.fingerHeld = false; state.holdId = null; }
   };
   window.addEventListener('pointerup', release);
   window.addEventListener('pointercancel', release);
   window.addEventListener('contextmenu', (e) => e.preventDefault());
-  const shotBtn = document.getElementById('shot');
-  shotBtn.addEventListener('pointerdown', (e) => { state.shotButton = true; state.shotLatch = true; shotBtn.classList.add('down'); try { shotBtn.setPointerCapture(e.pointerId); } catch (x) { /* none */ } e.preventDefault(); });
-  const shotUp = () => { state.shotButton = false; shotBtn.classList.remove('down'); };
-  shotBtn.addEventListener('pointerup', shotUp);
-  shotBtn.addEventListener('pointercancel', shotUp);
-  shotBtn.addEventListener('lostpointercapture', shotUp);
+  // The action button of each player: Serve before their serve (hold, aim with the steering finger, let go), Lob in a rally (see Match.actionLabel).
+  function wireButton(el, side) {
+    el.addEventListener('pointerdown', (e) => { const P = padOf(side); P.shotButton = true; P.btnLatch = true; el.classList.add('down'); try { el.setPointerCapture(e.pointerId); } catch (x) { /* none */ } e.preventDefault(); });
+    const up = () => { padOf(side).shotButton = false; el.classList.remove('down'); };
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('lostpointercapture', up);
+    return el;
+  }
+  const shotBtn = wireButton(document.getElementById('shot'), 'bottom');
+  const shotBtn2 = wireButton(document.getElementById('shot2'), 'top');
   document.getElementById('again').addEventListener('click', (e) => { e.currentTarget.blur(); newMatch(); });
   document.getElementById('change').addEventListener('click', (e) => { e.currentTarget.blur(); openChooser(); });
   for (const b of document.querySelectorAll('.lv')) b.addEventListener('click', (e) => { e.currentTarget.blur(); chooseLevel(e.currentTarget.dataset.level); });
+  onTap(document.getElementById('two'), enterTwo);
+  for (const b of document.querySelectorAll('.dlv')) onTap(b, () => duoPick(b.dataset.side, b.dataset.level));
+  for (const id of ['ng-top', 'ng-bot']) onTap(document.querySelector('#' + id + ' button'), () => { openDuoChooser(); goFull(); });   // either player may ask for a new game; it brings back the level choice at each end
+  const closeMark = document.getElementById('closemark');
+  closeMark.addEventListener('pointerdown', (e) => { state.closeAt = performance.now(); try { closeMark.setPointerCapture(e.pointerId); } catch (x) { /* none */ } e.preventDefault(); });
+  for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) closeMark.addEventListener(t, () => { state.closeAt = 0; });
   const KEYMAP = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
   window.addEventListener('keydown', (e) => {
+    if (state.two) return;
     if (state.choosing) {
       // the level choice: 1 2 3, or the arrows to pick and Space or Enter to confirm
       if (e.key === '1' || e.key === '2' || e.key === '3') { chooseLevel(LEVELS[Number(e.key) - 1]); e.preventDefault(); }
@@ -1332,10 +1637,29 @@ REGISTRY['./match.js'] = module.exports;
     if (KEYMAP[e.key]) { state.keys[KEYMAP[e.key]] = false; e.preventDefault(); }
     if (e.key === ' ' || e.code === 'Space') { state.spaceHeld = false; state.spaceIgnore = false; }
   });
-  window.addEventListener('blur', () => { state.keys = {}; state.spaceHeld = state.mouseHeld = state.fingerHeld = state.rightHeld = state.shotButton = false; shotBtn.classList.remove('down'); });
+  window.addEventListener('blur', () => { state.keys = {}; state.spaceHeld = state.mouseHeld = state.fingerHeld = state.rightHeld = state.shotButton = state.top.shotButton = false; shotBtn.classList.remove('down'); shotBtn2.classList.remove('down'); state.closeAt = 0; state.moveId = state.top.moveId = null; state.finger = state.top.finger = null; });
 
+  // Two players: each racket runs toward its own finger's point (the bottom one up from the finger, the top one down from it); while a player serves, their
+  // racket only slides along the baseline. Each player's button is read by the match as Serve (hold) or Lob (shot).
+  function updateTwo(dt) {
+    const m0 = state.m, input = { hold: false, shot: false, top: { hold: false, shot: false } };
+    for (const side of ['bottom', 'top']) {
+      const P = padOf(side);
+      steerLead(dt, side);
+      const serving = m0.phase === 'waiting' && m0.server === side;
+      if (P.target) P.racket = moveRacketToward(P.racket, serving ? { x: P.target.x, y: serveSpot(side) } : P.target, dt, side);
+      const b = Match.buttonInput(m0, side, P.shotButton || P.btnLatch);
+      P.btnLatch = false;
+      const out = side === 'top' ? input.top : input;
+      out.racket = P.racket; out.hold = b.hold; out.shot = b.shot;
+    }
+    state.m = Match.stepMatch(state.m, input, dt, state.rand);
+    state.racket = state.m.racket; state.top.racket = state.m.opponent;
+    state.hold = input.hold; state.shot = input.shot; state.topShot = input.top.shot;
+  }
   function update(dt) {
     if (state.choosing) return;
+    if (state.two) { updateTwo(dt); return; }
     steerLead(dt);
     const m0 = state.m;
     const serving = m0.phase === 'waiting' && m0.server === 'bottom';   // then the racket only slides along the baseline
@@ -1347,8 +1671,10 @@ REGISTRY['./match.js'] = module.exports;
       const goal = serving ? { x: state.target.x, y: serveSpot('bottom') } : state.target;
       state.racket = moveRacketToward(state.racket, goal, dt, 'bottom');
     }
-    state.hold = state.mouseHeld || state.fingerHeld || state.spaceHeld || state.holdLatch;
-    state.shot = state.spaceHeld || state.rightHeld || state.shotButton || state.shotLatch;
+    const btn = Match.buttonInput(m0, 'bottom', state.shotButton || state.btnLatch);   // the phone button: Serve (hold) before the player's serve, Lob (shot) in a rally
+    state.btnLatch = false;
+    state.hold = state.mouseHeld || state.fingerHeld || state.spaceHeld || state.holdLatch || btn.hold;
+    state.shot = state.spaceHeld || state.rightHeld || btn.shot || state.shotLatch;
     state.m = Match.stepMatch(state.m, { racket: state.racket, hold: state.hold, shot: state.shot }, dt, state.rand);
     state.holdLatch = false; state.shotLatch = false;
     state.racket = state.m.racket;
@@ -1356,7 +1682,32 @@ REGISTRY['./match.js'] = module.exports;
 
   // ---- scoreboard and texts (DOM), written from the match score
   function text(id, v) { const el = document.getElementById(id); if (el.textContent !== v) el.textContent = v; }
+  const duoEl = document.getElementById('duo');
+  function showTwo() {
+    const m = state.m, s = m.score;
+    document.getElementById('turn').classList.toggle('on', sideways());
+    // full screen stays through the end of the set and New game; only the close mark leaves it
+    text('shot', Match.actionLabel(m, 'bottom')); text('shot2', Match.actionLabel(m, 'top'));
+    duoEl.classList.toggle('on', state.choosing);
+    duoEl.querySelectorAll('.dlv').forEach((b) => b.classList.toggle('pick', state.duo[b.dataset.side] === b.dataset.level));
+    duoEl.querySelectorAll('.duo-half').forEach((h) => { h.querySelector('.duo-wait').textContent = state.duo[h.dataset.side] ? 'Waiting for the other player' : ''; });
+    const over = !state.choosing && m.phase === 'over';
+    for (const [id, side] of [['ng-bot', 'bottom'], ['ng-top', 'top']]) {
+      const el = document.getElementById(id), who = side === 'top' ? 'computer' : 'player';
+      el.classList.toggle('on', over);
+      if (over) {
+        el.children[0].textContent = Match.setResultText(s, side);
+        el.children[1].textContent = 'Games ' + s.games[who] + ' - ' + s.games[who === 'player' ? 'computer' : 'player'];
+      }
+    }
+    const held = state.closeAt ? Math.min(1, (performance.now() - state.closeAt) / CLOSE_HOLD) : 0;
+    closeMark.firstChild.style.height = held * 100 + '%';
+    if (state.closeAt && held >= 1) closeTwo();
+  }
   function showScore() {
+    document.body.classList.toggle('two', state.two);
+    if (state.two) { showTwo(); return; }
+    text('shot', Match.actionLabel(state.m, 'bottom'));
     const m = state.m, s = m.score;
     text('g-you', String(s.games.player)); text('g-cpu', String(s.games.computer));
     text('p-you', Scoring.pointText(s, 'player')); text('p-cpu', Scoring.pointText(s, 'computer'));
@@ -1429,12 +1780,13 @@ REGISTRY['./match.js'] = module.exports;
   }
 
   // Power while it builds: speed streaks behind the racket that grow with the power; from POWER_SIGN on an orange ring and the word POWER.
-  function drawPowerSign(r, power) {
+  function drawPowerSign(r, power, dir) {
+    dir = dir || 1;
     if (power <= 0.04) return;
     const x = MARGIN + r.x, y = MARGIN + r.y;
     for (let i = -2; i <= 2; i++) {
       ctx.strokeStyle = 'rgba(' + POWER_COLOR + ',' + (0.75 + 0.25 * power).toFixed(3) + ')'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(x + i * 10, y + 30); ctx.lineTo(x + i * 10, y + 30 + 14 + 46 * power * (1 - Math.abs(i) * 0.2)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + i * 10, y + dir * 30); ctx.lineTo(x + i * 10, y + dir * (30 + 14 + 46 * power * (1 - Math.abs(i) * 0.2))); ctx.stroke();
     }
     ctx.lineCap = 'square';
     if (power < POWER_SIGN) return;
@@ -1454,10 +1806,33 @@ REGISTRY['./match.js'] = module.exports;
   }
 
   // The power of the serve being built up: an upright bar beside the racket that fills from green to red (below the racket there is no room).
-  function drawPower(r, charge) {
-    const w = 10, h = 64, x = MARGIN + r.x + (r.x < 90 ? RACKET_HALF_W + 10 : -RACKET_HALF_W - 10 - w), y = MARGIN + r.y - h + 20;
+  function drawPower(r, charge, top) {
+    const w = 10, h = 64, x = MARGIN + r.x + (r.x < 90 ? RACKET_HALF_W + 10 : -RACKET_HALF_W - 10 - w), y = top ? MARGIN + r.y - 20 : MARGIN + r.y - h + 20;
     ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(x - 2, y - 2, w + 4, h + 4);
-    ctx.fillStyle = 'hsl(' + Math.round(120 - 120 * charge) + ', 85%, 50%)'; ctx.fillRect(x, y + h * (1 - charge), w, h * charge);
+    ctx.fillStyle = 'hsl(' + Math.round(120 - 120 * charge) + ', 85%, 50%)'; ctx.fillRect(x, top ? y : y + h * (1 - charge), w, h * charge);
+  }
+
+  // Two players: in each half, turned toward the player who has it, half transparent: the messages, the cue for the server (3, 2, 1, Your serve), the score with
+  // the level small beside it. There is no scoreboard. (The frame is the middle of the net; for the top player it is turned half a circle, so 'down' is toward their end.)
+  function drawHalves() {
+    const m = state.m, s = m.score, cue = state.cue = Match.twoCue(m), over = m.phase === 'over';   // state.cue: read by the proofs
+    for (const side of ['bottom', 'top']) {
+      const who = side === 'top' ? 'computer' : 'player', level = side === 'top' ? m.levelTop : m.level;
+      ctx.save();
+      ctx.translate(MARGIN + COURT_W / 2, MARGIN + NET_Y);
+      if (side === 'top') ctx.rotate(Math.PI);
+      ctx.globalAlpha = 0.5; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
+      if (m.message) { ctx.font = 'bold 30px system-ui, sans-serif'; ctx.fillText(m.message, 0, 56); }
+      if (m.message2) { ctx.font = 'bold 26px system-ui, sans-serif'; ctx.fillText(m.message2, 0, 92); }
+      if (cue && cue.side === side) { ctx.font = 'bold 38px system-ui, sans-serif'; ctx.fillText(cue.text, 0, 142); }
+      if (!over) {
+        ctx.textAlign = 'left';   // in the corner of their own end, away from where the racket mostly stands
+        ctx.font = 'bold 15px system-ui, sans-serif';
+        ctx.fillText((s.server === who ? '\u25CF ' : '') + 'Games ' + s.games[who] + '  \u00B7  ' + LEVEL_TEXT[level] + (s.tiebreak ? '  \u00B7  Tiebreak' : ''), -166, 206);
+        ctx.font = 'bold 44px system-ui, sans-serif'; ctx.fillText(Scoring.pointText(s, who), -166, 252);
+      }
+      ctx.restore();
+    }
   }
 
   function draw() {
@@ -1471,18 +1846,23 @@ REGISTRY['./match.js'] = module.exports;
     line(0, NET_Y + SERVICE, COURT_W, NET_Y + SERVICE);
     line(COURT_W / 2, NET_Y - SERVICE, COURT_W / 2, NET_Y + SERVICE);    // centre line
     // net with posts
-    ctx.strokeStyle = '#d9dde0'; line(-14, NET_Y, COURT_W + 14, NET_Y, 6);
+    ctx.strokeStyle = '#d9dde0'; line(-14, NET_Y, COURT_W + 14, NET_Y, NET_BAND);
     ctx.strokeStyle = '#8b949a'; ctx.setLineDash([3, 3]); line(-14, NET_Y + 3, COURT_W + 14, NET_Y + 3, 2); ctx.setLineDash([]);
+    // the author's name, small, in the middle of the net band, like a sponsor's name on a real net
+    ctx.fillStyle = '#1b2733'; ctx.font = 'bold ' + NAME_SIZE + 'px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(NET_NAME, MARGIN + COURT_W / 2, MARGIN + NET_Y + 0.5); ctx.textBaseline = 'alphabetic';
     ctx.fillStyle = '#222'; ctx.fillRect(MARGIN - 18, MARGIN + NET_Y - 5, 8, 10); ctx.fillRect(MARGIN + COURT_W + 10, MARGIN + NET_Y - 5, 8, 10);
     drawRacket(m.opponent, '#d94b4b', -1);
     drawBall();
     drawRacket(m.racket, '#3b82f6', 1);
     if (m.phase === 'play') drawPowerSign(m.racket, m.power || 0);
+    if (m.phase === 'play' && state.two) drawPowerSign(m.opponent, m.opponentPower || 0, -1);
     if (m.ball && m.hits !== state.lastHits && m.ball.power >= POWER_SIGN && m.phase === 'play') state.flash = { x: MARGIN + m.ball.x, y: MARGIN + m.ball.y - m.ball.z * HEIGHT_SCALE, t: performance.now() };
     state.lastHits = m.hits;
     drawFlash();
     if (state.shot) { ctx.strokeStyle = '#f2e94e'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(MARGIN + m.racket.x, MARGIN + m.racket.y, RACKET_HALF_W + 4, RACKET_HALF_H + 1, 0, 0, Math.PI * 2); ctx.stroke(); }
-    if (m.phase === 'waiting' && m.server === 'bottom' && m.holding) drawPower(m.racket, m.charge);
+    if (state.two && state.topShot) { ctx.strokeStyle = '#f2e94e'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.ellipse(MARGIN + m.opponent.x, MARGIN + m.opponent.y, RACKET_HALF_W + 4, RACKET_HALF_H + 1, 0, 0, Math.PI * 2); ctx.stroke(); }
+    if (m.phase === 'waiting' && m.holding && (m.server === 'bottom' || state.two)) drawPower(m.server === 'top' ? m.opponent : m.racket, m.charge, m.server === 'top');
+    if (state.two) { drawHalves(); return; }
     ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
     if (m.message) { ctx.font = 'bold 34px system-ui, sans-serif'; ctx.fillText(m.message, VIEW_W / 2, MARGIN + NET_Y - 30); }
     if (m.message2) { ctx.font = 'bold 30px system-ui, sans-serif'; ctx.fillText(m.message2, VIEW_W / 2, MARGIN + NET_Y + 62); }
@@ -1492,9 +1872,9 @@ REGISTRY['./match.js'] = module.exports;
   function frame(t) {
     const dt = last === null ? 0 : Math.min(0.05, (t - last) / 1000);
     last = t;
-    const total = dt * Math.max(0, state.speed);
+    const total = sideways() ? 0 : dt * Math.max(0, state.speed);
     const n = Math.max(1, Math.ceil(total / MAX_STEP));
-    for (let i = 0; i < n; i++) update(total / n);
+    if (total > 0) for (let i = 0; i < n; i++) update(total / n);
     showScore();
     draw();
     requestAnimationFrame(frame);
